@@ -21333,6 +21333,155 @@
                           "inputs"
                         ],
                         "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "kafka"
+                            ]
+                          },
+                          "inputs": {
+                            "type": "object",
+                            "properties": {
+                              "bootstrapServers": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "host": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 255
+                                    },
+                                    "port": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 65535
+                                    }
+                                  },
+                                  "required": [
+                                    "host",
+                                    "port"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "minItems": 1,
+                                "description": "Brokers Infisical tries in order until one connects"
+                              },
+                              "saslMechanism": {
+                                "type": "string",
+                                "enum": [
+                                  "PLAIN",
+                                  "SCRAM-SHA-256",
+                                  "SCRAM-SHA-512"
+                                ],
+                                "description": "SASL mechanism Infisical uses to authenticate as the admin user"
+                              },
+                              "username": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 255,
+                                "description": "Admin username used to manage SCRAM users and ACLs"
+                              },
+                              "password": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 1024,
+                                "description": "Admin password used to manage SCRAM users and ACLs"
+                              },
+                              "acls": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "resourceType": {
+                                      "type": "string",
+                                      "enum": [
+                                        "TOPIC",
+                                        "GROUP",
+                                        "CLUSTER",
+                                        "TRANSACTIONAL_ID"
+                                      ]
+                                    },
+                                    "patternType": {
+                                      "type": "string",
+                                      "enum": [
+                                        "LITERAL",
+                                        "PREFIXED"
+                                      ],
+                                      "default": "LITERAL"
+                                    },
+                                    "resourceName": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 255,
+                                      "description": "Resource name or prefix, or \"*\" for all"
+                                    },
+                                    "operation": {
+                                      "type": "string",
+                                      "enum": [
+                                        "ALL",
+                                        "READ",
+                                        "WRITE",
+                                        "CREATE",
+                                        "DELETE",
+                                        "ALTER",
+                                        "DESCRIBE",
+                                        "DESCRIBE_CONFIGS",
+                                        "ALTER_CONFIGS",
+                                        "IDEMPOTENT_WRITE"
+                                      ]
+                                    },
+                                    "permissionType": {
+                                      "type": "string",
+                                      "enum": [
+                                        "ALLOW",
+                                        "DENY"
+                                      ],
+                                      "default": "ALLOW"
+                                    }
+                                  },
+                                  "required": [
+                                    "resourceType",
+                                    "resourceName",
+                                    "operation"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "minItems": 1,
+                                "description": "ACLs granted to each lease user"
+                              },
+                              "sslEnabled": {
+                                "type": "boolean",
+                                "default": false
+                              },
+                              "ca": {
+                                "type": "string",
+                                "maxLength": 10240
+                              },
+                              "sslRejectUnauthorized": {
+                                "type": "boolean",
+                                "default": true
+                              }
+                            },
+                            "required": [
+                              "bootstrapServers",
+                              "saslMechanism",
+                              "username",
+                              "password",
+                              "acls"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "inputs"
+                        ],
+                        "additionalProperties": false
                       }
                     ],
                     "description": "The type of dynamic secret."
