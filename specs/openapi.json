@@ -29762,7 +29762,8 @@
                   "discoveryType": {
                     "type": "string",
                     "enum": [
-                      "network"
+                      "network",
+                      "linux-server"
                     ],
                     "default": "network",
                     "description": "Type of discovery scan"
@@ -29775,22 +29776,77 @@
                         "items": {
                           "type": "string",
                           "maxLength": 64
-                        }
+                        },
+                        "description": "IP addresses or CIDR ranges to scan (Network jobs)."
                       },
                       "domains": {
                         "type": "array",
                         "items": {
                           "type": "string",
                           "maxLength": 253
-                        }
+                        },
+                        "description": "Domains to scan (Network jobs)."
                       },
                       "ports": {
                         "type": "string",
-                        "default": "443, 8443, 636, 993, 995"
+                        "maxLength": 256,
+                        "default": "443, 8443, 636, 993, 995",
+                        "description": "Comma-separated ports or ranges (Network jobs)."
+                      },
+                      "connectionIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "minItems": 1,
+                        "maxItems": 100,
+                        "description": "IDs of the SSH connections to scan. Each connection must use a gateway."
+                      },
+                      "searchFolderPaths": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        },
+                        "minItems": 1,
+                        "maxItems": 20,
+                        "description": "Folders to search. Each folder is searched along with the folders below it."
+                      },
+                      "skipFolderPaths": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        },
+                        "maxItems": 50,
+                        "default": [],
+                        "description": "Folders that are never entered."
+                      },
+                      "maxFolderDepth": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 20,
+                        "default": 8,
+                        "description": "How many levels below each search folder to go."
+                      },
+                      "maxFileSizeKb": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 10240,
+                        "default": 512,
+                        "description": "Files bigger than this, in KB, are skipped."
+                      },
+                      "importStandaloneCaCertificates": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Also import CA certificates found on their own. Leaf certificates always bring their chain."
                       }
                     },
                     "additionalProperties": false,
-                    "description": "Target configuration for discovery scans"
+                    "description": "Target configuration. Network jobs use domains, ipRanges and ports. Linux Server jobs use connectionIds, searchFolderPaths, skipFolderPaths, maxFolderDepth, maxFileSizeKb and importStandaloneCaCertificates."
                   },
                   "isAutoScanEnabled": {
                     "type": "boolean",
@@ -30232,6 +30288,124 @@
                           },
                           "installationsFound": {
                             "type": "number"
+                          },
+                          "connections": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "app": {
+                                  "type": "string",
+                                  "enum": [
+                                    "github",
+                                    "github-radar",
+                                    "aws",
+                                    "databricks",
+                                    "gcp",
+                                    "azure-key-vault",
+                                    "azure-app-configuration",
+                                    "azure-client-secrets",
+                                    "azure-devops",
+                                    "azure-adcs",
+                                    "adcs",
+                                    "azure-dns",
+                                    "humanitec",
+                                    "terraform-cloud",
+                                    "vercel",
+                                    "postgres",
+                                    "mssql",
+                                    "mysql",
+                                    "camunda",
+                                    "windmill",
+                                    "auth0",
+                                    "hashicorp-vault",
+                                    "ldap",
+                                    "teamcity",
+                                    "oci",
+                                    "oracledb",
+                                    "1password",
+                                    "heroku",
+                                    "render",
+                                    "flyio",
+                                    "trigger-dev",
+                                    "gitlab",
+                                    "cloudflare",
+                                    "dns-made-easy",
+                                    "ultradns",
+                                    "zabbix",
+                                    "railway",
+                                    "bitbucket",
+                                    "checkly",
+                                    "supabase",
+                                    "digital-ocean",
+                                    "netlify",
+                                    "okta",
+                                    "redis",
+                                    "mongodb",
+                                    "laravel-forge",
+                                    "chef",
+                                    "northflank",
+                                    "octopus-deploy",
+                                    "ssh",
+                                    "dbt",
+                                    "smb",
+                                    "winrm",
+                                    "open-router",
+                                    "openai",
+                                    "circleci",
+                                    "azure-entra-id",
+                                    "venafi",
+                                    "venafi-tpp",
+                                    "external-infisical",
+                                    "doppler",
+                                    "netscaler",
+                                    "palo-alto-networks",
+                                    "anthropic",
+                                    "ovh",
+                                    "devin",
+                                    "ona",
+                                    "digicert",
+                                    "travis-ci",
+                                    "salesforce",
+                                    "snowflake",
+                                    "datadog",
+                                    "f5-big-ip",
+                                    "godaddy",
+                                    "convex",
+                                    "rundeck",
+                                    "portainer",
+                                    "hasura-cloud",
+                                    "qovery",
+                                    "cloud-66",
+                                    "litellm",
+                                    "fireworks",
+                                    "kemp-loadmaster",
+                                    "microsoft-intune",
+                                    "nutanix-prism-central",
+                                    "powerdns",
+                                    "spacelift",
+                                    "daytona",
+                                    "stripe",
+                                    "keeper",
+                                    "hpe-ilo",
+                                    "s3-compatible"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "app"
+                              ],
+                              "additionalProperties": false
+                            }
                           }
                         },
                         "required": [
@@ -30564,6 +30738,124 @@
                     "gatewayPoolName": {
                       "type": "string",
                       "nullable": true
+                    },
+                    "connections": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "app": {
+                            "type": "string",
+                            "enum": [
+                              "github",
+                              "github-radar",
+                              "aws",
+                              "databricks",
+                              "gcp",
+                              "azure-key-vault",
+                              "azure-app-configuration",
+                              "azure-client-secrets",
+                              "azure-devops",
+                              "azure-adcs",
+                              "adcs",
+                              "azure-dns",
+                              "humanitec",
+                              "terraform-cloud",
+                              "vercel",
+                              "postgres",
+                              "mssql",
+                              "mysql",
+                              "camunda",
+                              "windmill",
+                              "auth0",
+                              "hashicorp-vault",
+                              "ldap",
+                              "teamcity",
+                              "oci",
+                              "oracledb",
+                              "1password",
+                              "heroku",
+                              "render",
+                              "flyio",
+                              "trigger-dev",
+                              "gitlab",
+                              "cloudflare",
+                              "dns-made-easy",
+                              "ultradns",
+                              "zabbix",
+                              "railway",
+                              "bitbucket",
+                              "checkly",
+                              "supabase",
+                              "digital-ocean",
+                              "netlify",
+                              "okta",
+                              "redis",
+                              "mongodb",
+                              "laravel-forge",
+                              "chef",
+                              "northflank",
+                              "octopus-deploy",
+                              "ssh",
+                              "dbt",
+                              "smb",
+                              "winrm",
+                              "open-router",
+                              "openai",
+                              "circleci",
+                              "azure-entra-id",
+                              "venafi",
+                              "venafi-tpp",
+                              "external-infisical",
+                              "doppler",
+                              "netscaler",
+                              "palo-alto-networks",
+                              "anthropic",
+                              "ovh",
+                              "devin",
+                              "ona",
+                              "digicert",
+                              "travis-ci",
+                              "salesforce",
+                              "snowflake",
+                              "datadog",
+                              "f5-big-ip",
+                              "godaddy",
+                              "convex",
+                              "rundeck",
+                              "portainer",
+                              "hasura-cloud",
+                              "qovery",
+                              "cloud-66",
+                              "litellm",
+                              "fireworks",
+                              "kemp-loadmaster",
+                              "microsoft-intune",
+                              "nutanix-prism-central",
+                              "powerdns",
+                              "spacelift",
+                              "daytona",
+                              "stripe",
+                              "keeper",
+                              "hpe-ilo",
+                              "s3-compatible"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "app"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
                   },
                   "required": [
@@ -30815,22 +31107,77 @@
                         "items": {
                           "type": "string",
                           "maxLength": 64
-                        }
+                        },
+                        "description": "IP addresses or CIDR ranges to scan (Network jobs)."
                       },
                       "domains": {
                         "type": "array",
                         "items": {
                           "type": "string",
                           "maxLength": 253
-                        }
+                        },
+                        "description": "Domains to scan (Network jobs)."
                       },
                       "ports": {
                         "type": "string",
-                        "default": "443, 8443, 636, 993, 995"
+                        "maxLength": 256,
+                        "default": "443, 8443, 636, 993, 995",
+                        "description": "Comma-separated ports or ranges (Network jobs)."
+                      },
+                      "connectionIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "minItems": 1,
+                        "maxItems": 100,
+                        "description": "IDs of the SSH connections to scan. Each connection must use a gateway."
+                      },
+                      "searchFolderPaths": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        },
+                        "minItems": 1,
+                        "maxItems": 20,
+                        "description": "Folders to search. Each folder is searched along with the folders below it."
+                      },
+                      "skipFolderPaths": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        },
+                        "maxItems": 50,
+                        "default": [],
+                        "description": "Folders that are never entered."
+                      },
+                      "maxFolderDepth": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 20,
+                        "default": 8,
+                        "description": "How many levels below each search folder to go."
+                      },
+                      "maxFileSizeKb": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 10240,
+                        "default": 512,
+                        "description": "Files bigger than this, in KB, are skipped."
+                      },
+                      "importStandaloneCaCertificates": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Also import CA certificates found on their own. Leaf certificates always bring their chain."
                       }
                     },
                     "additionalProperties": false,
-                    "description": "Target configuration for discovery scans"
+                    "description": "Target configuration. Network jobs use domains, ipRanges and ports. Linux Server jobs use connectionIds, searchFolderPaths, skipFolderPaths, maxFolderDepth, maxFileSizeKb and importStandaloneCaCertificates."
                   },
                   "isAutoScanEnabled": {
                     "type": "boolean",
@@ -32447,6 +32794,10 @@
                             "type": "string",
                             "format": "date-time"
                           },
+                          "hasKeystorePassword": {
+                            "type": "boolean",
+                            "description": "Whether a keystore password is saved for this installation"
+                          },
                           "certificatesCount": {
                             "type": "number"
                           },
@@ -32465,7 +32816,8 @@
                           "locationFingerprint",
                           "lastSeenAt",
                           "createdAt",
-                          "updatedAt"
+                          "updatedAt",
+                          "hasKeystorePassword"
                         ],
                         "additionalProperties": false
                       }
@@ -32750,8 +33102,30 @@
                       "type": "string",
                       "format": "date-time"
                     },
+                    "hasKeystorePassword": {
+                      "type": "boolean",
+                      "description": "Whether a keystore password is saved for this installation"
+                    },
                     "discoveryName": {
                       "type": "string",
+                      "nullable": true
+                    },
+                    "connection": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ],
+                      "additionalProperties": false,
                       "nullable": true
                     },
                     "certificates": {
@@ -32837,7 +33211,8 @@
                     "locationFingerprint",
                     "lastSeenAt",
                     "createdAt",
-                    "updatedAt"
+                    "updatedAt",
+                    "hasKeystorePassword"
                   ],
                   "additionalProperties": false
                 }
@@ -33066,6 +33441,13 @@
                     "type": "string",
                     "maxLength": 255,
                     "description": "Name of the installation"
+                  },
+                  "keystorePassword": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024,
+                    "nullable": true,
+                    "description": "Password of the keystore at this installation. It is never returned. Setting it rescans the file. Send null to clear it."
                   }
                 },
                 "additionalProperties": false
@@ -33126,6 +33508,10 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "hasKeystorePassword": {
+                      "type": "boolean",
+                      "description": "Whether a keystore password is saved for this installation"
                     }
                   },
                   "required": [
@@ -33134,7 +33520,8 @@
                     "locationFingerprint",
                     "lastSeenAt",
                     "createdAt",
-                    "updatedAt"
+                    "updatedAt",
+                    "hasKeystorePassword"
                   ],
                   "additionalProperties": false
                 }
@@ -33405,6 +33792,10 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "hasKeystorePassword": {
+                      "type": "boolean",
+                      "description": "Whether a keystore password is saved for this installation"
                     }
                   },
                   "required": [
@@ -33413,7 +33804,8 @@
                     "locationFingerprint",
                     "lastSeenAt",
                     "createdAt",
-                    "updatedAt"
+                    "updatedAt",
+                    "hasKeystorePassword"
                   ],
                   "additionalProperties": false
                 }
@@ -89020,13 +89412,11 @@
                   "allowedPrincipalArns": {
                     "type": "string",
                     "maxLength": 4096,
-                    "default": "",
                     "description": "The new comma-separated list of trusted IAM principal ARNs that are allowed to authenticate with Infisical."
                   },
                   "allowedAccountIds": {
                     "type": "string",
                     "maxLength": 4096,
-                    "default": "",
                     "description": "The new comma-separated list of trusted AWS account IDs that are allowed to authenticate with Infisical."
                   },
                   "accessTokenTrustedIps": {
@@ -103818,7 +104208,7 @@
                     },
                     {
                       "type": "string",
-                      "maxLength": 17586
+                      "maxLength": 17616
                     }
                   ]
                 },
@@ -104461,6 +104851,7 @@
                           "enable-pki-signer",
                           "disable-pki-signer",
                           "reissue-pki-signer-certificate",
+                          "import-pki-signer-certificate",
                           "export-pki-signer-certificate",
                           "update-pki-signer-approval-policy",
                           "pki-signer-request-to-sign",
@@ -104529,7 +104920,7 @@
                           "update-audit-log-settings"
                         ]
                       },
-                      "maxItems": 695
+                      "maxItems": 696
                     }
                   ]
                 }
@@ -123474,6 +123865,10 @@
                           "customExtensions": {
                             "nullable": true
                           },
+                          "hsmKeyId": {
+                            "type": "string",
+                            "nullable": true
+                          },
                           "hasPrivateKey": {
                             "type": "boolean"
                           },
@@ -142305,6 +142700,279 @@
                     "certificates",
                     "certificateAuthorities",
                     "totalCount"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cert-manager/hsm-connectors/{connectorId}/keys": {
+      "get": {
+        "operationId": "listHsmConnectorKeys",
+        "tags": [
+          "HSM Connectors"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "in": "query",
+            "name": "label",
+            "required": true,
+            "description": "The exact label (CKA_LABEL) of the private keys to look up."
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "connectorId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "keys": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "keyId": {
+                            "type": "string",
+                            "description": "The hex-encoded PKCS#11 key ID (CKA_ID). Empty when the key has none."
+                          },
+                          "keyAlgorithm": {
+                            "type": "string",
+                            "description": "The key's algorithm, such as RSA_3072 or ECC_P256. Empty when it can't be determined."
+                          }
+                        },
+                        "required": [
+                          "keyId",
+                          "keyAlgorithm"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "The private keys in the HSM Connector's slot that have the label, sorted by key ID."
+                    }
+                  },
+                  "required": [
+                    "keys"
                   ],
                   "additionalProperties": false
                 }
@@ -168376,6 +169044,10 @@
                         "customExtensions": {
                           "nullable": true
                         },
+                        "hsmKeyId": {
+                          "type": "string",
+                          "nullable": true
+                        },
                         "subject": {
                           "type": "object",
                           "properties": {
@@ -169224,6 +169896,10 @@
                           "default": "00000000-0000-0000-0000-000000000000"
                         },
                         "customExtensions": {
+                          "nullable": true
+                        },
+                        "hsmKeyId": {
+                          "type": "string",
                           "nullable": true
                         }
                       },
@@ -170805,6 +171481,10 @@
                           "default": "00000000-0000-0000-0000-000000000000"
                         },
                         "customExtensions": {
+                          "nullable": true
+                        },
+                        "hsmKeyId": {
+                          "type": "string",
                           "nullable": true
                         }
                       },
@@ -196158,53 +196838,54 @@
                       "hsmConnectorId": {
                         "type": "string",
                         "format": "uuid"
+                      },
+                      "hsmKeyLabel": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128,
+                        "description": "The label of the certificate's private key on the HSM. Only used when using an existing DigiCert certificate. If more than one private key in the HSM Connector's slot has this label, also set hsmKeyId."
+                      },
+                      "hsmKeyId": {
+                        "type": "string",
+                        "minLength": 2,
+                        "maxLength": 256,
+                        "pattern": "^(?:[0-9a-fA-F]{2})+$",
+                        "description": "The hex-encoded PKCS#11 key ID (CKA_ID) of the private key, used to tell apart keys that share a label. Only used with hsmKeyLabel."
                       }
                     },
                     "additionalProperties": false
                   },
                   "externalConfiguration": {
-                    "anyOf": [
-                      {
-                        "type": "object",
-                        "properties": {
-                          "caType": {
-                            "type": "string",
-                            "enum": [
-                              "digicert"
-                            ]
-                          },
-                          "reissueFromExternalOrderId": {
-                            "type": "string",
-                            "minLength": 1,
-                            "description": "Reissue into this existing DigiCert order instead of placing a new order (reuses the subscription slot)."
-                          }
-                        },
-                        "required": [
-                          "caType"
+                    "type": "object",
+                    "properties": {
+                      "caType": {
+                        "type": "string",
+                        "enum": [
+                          "digicert",
+                          "adcs"
                         ],
-                        "additionalProperties": false
+                        "description": "Optional. The CA type is resolved from caId. If provided, it must match the type of that certificate authority."
                       },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "caType": {
-                            "type": "string",
-                            "enum": [
-                              "adcs"
-                            ]
-                          },
-                          "template": {
-                            "type": "string",
-                            "minLength": 1,
-                            "description": "The AD CS certificate template this signer requests when issuing (e.g. a code-signing template)."
-                          }
-                        },
-                        "required": [
-                          "caType"
-                        ],
-                        "additionalProperties": false
+                      "reissueFromExternalOrderId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32,
+                        "description": "DigiCert only. Reissue into this existing DigiCert order instead of placing a new order (reuses the subscription slot). DigiCert revokes the order's previous certificate."
+                      },
+                      "importFromExternalOrderId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32,
+                        "description": "DigiCert only. Use the certificate already issued in this DigiCert order, without reissuing it. Requires certificate.hsmKeyLabel to point at the certificate's private key on the HSM. The common name, validity and key algorithm come from that certificate, so commonName, certificateTtlDays and keyAlgorithm can't be sent with it."
+                      },
+                      "template": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256,
+                        "description": "Active Directory Certificate Service only. The certificate template this signer requests when issuing (e.g. a code-signing template)."
                       }
-                    ]
+                    },
+                    "additionalProperties": false
                   },
                   "approvalPolicyId": {
                     "type": "string",
@@ -199618,16 +200299,16 @@
                   "certificate": {
                     "type": "object",
                     "properties": {
+                      "hsmConnectorId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
                       "keySource": {
                         "type": "string",
                         "enum": [
                           "infisical",
                           "hsm"
                         ]
-                      },
-                      "hsmConnectorId": {
-                        "type": "string",
-                        "format": "uuid"
                       }
                     },
                     "required": [
@@ -199636,52 +200317,406 @@
                     "additionalProperties": false
                   },
                   "externalConfiguration": {
-                    "anyOf": [
-                      {
-                        "type": "object",
-                        "properties": {
-                          "caType": {
-                            "type": "string",
-                            "enum": [
-                              "digicert"
-                            ]
-                          },
-                          "reissueFromExternalOrderId": {
-                            "type": "string",
-                            "minLength": 1,
-                            "description": "Reissue into this existing DigiCert order instead of placing a new order (reuses the subscription slot)."
-                          }
-                        },
-                        "required": [
-                          "caType"
+                    "type": "object",
+                    "properties": {
+                      "caType": {
+                        "type": "string",
+                        "enum": [
+                          "digicert",
+                          "adcs"
                         ],
-                        "additionalProperties": false
+                        "description": "Optional. The CA type is resolved from caId. If provided, it must match the type of that certificate authority."
                       },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "caType": {
-                            "type": "string",
-                            "enum": [
-                              "adcs"
-                            ]
-                          },
-                          "template": {
-                            "type": "string",
-                            "minLength": 1,
-                            "description": "The AD CS certificate template this signer requests when issuing (e.g. a code-signing template)."
-                          }
-                        },
-                        "required": [
-                          "caType"
-                        ],
-                        "additionalProperties": false
+                      "reissueFromExternalOrderId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32,
+                        "description": "DigiCert only. Reissue into this existing DigiCert order instead of placing a new order (reuses the subscription slot). DigiCert revokes the order's previous certificate."
+                      },
+                      "template": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256,
+                        "description": "Active Directory Certificate Service only. The certificate template this signer requests when issuing (e.g. a code-signing template)."
                       }
-                    ]
+                    },
+                    "additionalProperties": false
                   }
                 },
                 "required": [
                   "caId"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "signerId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "default": "active"
+                    },
+                    "certificateId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "approvalPolicyId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "lastSignedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "caId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "commonName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "certificateTtlDays": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "certificateRenewBeforeDays": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "certificateFailureReason": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "keyAlgorithm": {
+                      "type": "string",
+                      "default": "RSA_2048"
+                    },
+                    "externalCaConfig": {
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cert-manager/signers/{signerId}/certificate/import": {
+      "post": {
+        "operationId": "importSignerCertificate",
+        "tags": [
+          "PKI Signers"
+        ],
+        "description": "Switch the signer to the certificate already issued in an existing DigiCert order, signing with that certificate's private key on the HSM. DigiCert does not reissue or revoke anything.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "caId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The DigiCert certificate authority the order belongs to."
+                  },
+                  "externalOrderId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32,
+                    "description": "The DigiCert order whose certificate the signer will use."
+                  },
+                  "certificate": {
+                    "type": "object",
+                    "properties": {
+                      "hsmConnectorId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "hsmKeyLabel": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      },
+                      "hsmKeyId": {
+                        "type": "string",
+                        "minLength": 2,
+                        "maxLength": 256,
+                        "pattern": "^(?:[0-9a-fA-F]{2})+$",
+                        "description": "The hex-encoded PKCS#11 key ID (CKA_ID) of the private key, used to tell apart keys that share a label. Only used with hsmKeyLabel."
+                      }
+                    },
+                    "required": [
+                      "hsmConnectorId",
+                      "hsmKeyLabel"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "certificateRenewBeforeDays": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30,
+                    "nullable": true,
+                    "description": "Days before expiry to renew the certificate with the same HSM key. Must be less than the certificate's validity. Omit to keep the signer's current setting, or set to null to turn renewal off."
+                  }
+                },
+                "required": [
+                  "caId",
+                  "externalOrderId",
+                  "certificate"
                 ],
                 "additionalProperties": false
               }
@@ -268111,6 +269146,10 @@
                         },
                         "customExtensions": {
                           "nullable": true
+                        },
+                        "hsmKeyId": {
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "required": [
@@ -268558,6 +269597,10 @@
                           "default": "00000000-0000-0000-0000-000000000000"
                         },
                         "customExtensions": {
+                          "nullable": true
+                        },
+                        "hsmKeyId": {
+                          "type": "string",
                           "nullable": true
                         }
                       },
@@ -283301,6 +284344,10 @@
                             "default": "00000000-0000-0000-0000-000000000000"
                           },
                           "customExtensions": {
+                            "nullable": true
+                          },
+                          "hsmKeyId": {
+                            "type": "string",
                             "nullable": true
                           }
                         },
@@ -373186,6 +374233,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -378475,6 +379532,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -383995,6 +385062,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -387383,6 +388460,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -391589,6 +392676,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -397269,6 +398366,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -402469,6 +403576,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -408614,6 +409731,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -413989,6 +415116,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -417552,6 +418689,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -421086,6 +422233,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -424610,6 +425767,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -428073,6 +429240,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -431456,6 +432633,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -434840,6 +436027,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -438323,6 +439520,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -441979,6 +443186,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -445588,6 +446805,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -449289,6 +450516,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -452915,6 +454152,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -456367,6 +457614,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -459849,6 +461106,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -463806,6 +465073,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -468316,6 +469593,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -471912,6 +473199,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -475431,6 +476728,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -479073,6 +480380,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -482702,6 +484019,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -486544,6 +487871,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -490809,6 +492146,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -494193,6 +495540,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -497579,6 +498936,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -500986,6 +502353,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -504899,6 +506276,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -509346,6 +510733,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -512805,6 +514202,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -516295,6 +517702,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -519822,6 +521239,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -523295,6 +524722,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -526740,6 +528177,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -530143,6 +531590,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -533556,6 +535013,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -536990,6 +538457,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -540383,6 +541860,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -543773,6 +545260,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -547187,6 +548684,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -550713,6 +552220,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -554353,6 +555870,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -557980,6 +559507,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -561514,6 +563051,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -565471,6 +567018,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -570040,6 +571597,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -573570,6 +575137,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -577151,6 +578728,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -580750,6 +582337,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -584134,6 +585731,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -587528,6 +589135,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -590934,6 +592551,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -594379,6 +596006,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -597886,6 +599523,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -601381,6 +603028,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -604912,6 +606569,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -608467,6 +610134,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -611944,6 +613621,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -615387,6 +617074,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -618986,6 +620683,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -622603,6 +624310,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -626124,6 +627841,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -629559,6 +631286,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -633044,6 +634781,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -636430,6 +638177,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -639847,6 +641604,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -643306,6 +645073,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -646696,6 +648473,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -650110,6 +651897,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -653593,6 +655390,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -657494,6 +659301,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -661917,6 +663734,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -665455,6 +667282,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -668904,6 +670741,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -672366,6 +674213,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -675798,6 +677655,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -679182,6 +681049,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -682593,6 +684470,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -686061,6 +687948,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -689981,6 +691878,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -694511,6 +696418,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -698009,6 +699926,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -701458,6 +703385,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -704908,6 +706845,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -708434,6 +710381,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -712056,6 +714013,16 @@
                           },
                           "orgId": {
                             "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
