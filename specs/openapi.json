@@ -59577,6 +59577,32 @@
             "schema": {
               "type": "string",
               "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "in": "query",
+            "name": "requiresSetup",
+            "required": false,
+            "description": "true lists only the access bundles you can reach that have services still requiring your personal values. false lists the rest of them. Omit to list them all."
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "in": "query",
+            "name": "granted",
+            "required": false,
+            "description": "true lists only the access bundles granted to you, directly or through a group. false lists the ones you reach only as an admin. Omit to list them all."
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
                 "name",
                 "serviceCount",
                 "createdAt"
@@ -59684,6 +59710,29 @@
                               "type": "string"
                             },
                             "description": "Every host pattern the access bundle's services cover."
+                          },
+                          "servicesRequiringSetup": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "The ID of the service, for setting your personal values on it."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the service."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "description": "The services in this access bundle that still require your personal values."
                           }
                         },
                         "required": [
@@ -59693,7 +59742,8 @@
                           "updatedAt",
                           "serviceCount",
                           "memberCount",
-                          "hostPatterns"
+                          "hostPatterns",
+                          "servicesRequiringSetup"
                         ],
                         "additionalProperties": false
                       }
@@ -60319,12 +60369,23 @@
                                       "headerPrefix": {
                                         "type": "string",
                                         "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
+                                      },
+                                      "memberProvidedFields": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "enum": [
+                                            "credential-value"
+                                          ]
+                                        },
+                                        "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
                                       }
                                     },
                                     "required": [
                                       "type",
                                       "headerName",
-                                      "headerPrefix"
+                                      "headerPrefix",
+                                      "memberProvidedFields"
                                     ],
                                     "additionalProperties": false,
                                     "title": "Bearer"
@@ -60337,10 +60398,22 @@
                                         "enum": [
                                           "basic"
                                         ]
+                                      },
+                                      "memberProvidedFields": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "enum": [
+                                            "credential-value",
+                                            "credential-username"
+                                          ]
+                                        },
+                                        "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
                                       }
                                     },
                                     "required": [
-                                      "type"
+                                      "type",
+                                      "memberProvidedFields"
                                     ],
                                     "additionalProperties": false,
                                     "title": "Basic Auth"
@@ -60442,7 +60515,7 @@
                                         },
                                         "key": {
                                           "type": "string",
-                                          "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                          "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
                                         },
                                         "field": {
                                           "type": "string",
@@ -60471,7 +60544,7 @@
                                         },
                                         "key": {
                                           "type": "string",
-                                          "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                          "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
                                         },
                                         "field": {
                                           "type": "string",
@@ -60505,7 +60578,7 @@
                                         },
                                         "key": {
                                           "type": "string",
-                                          "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                          "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
                                         },
                                         "field": {
                                           "type": "string",
@@ -60531,7 +60604,7 @@
                                     }
                                   ]
                                 },
-                                "description": "The variables this service's credential, custom header values and substitution values use. Not returned to Agent Vault members, since only admins can see variables."
+                                "description": "The global variables this service's credential, custom header values and substitution values use. Not returned to Agent Vault members, since only admins can see global variables. A member's own personal variables are listed under personalValues."
                               },
                               "createdAt": {
                                 "type": "string",
@@ -60542,6 +60615,79 @@
                                 "type": "string",
                                 "format": "date-time",
                                 "description": "When the service was last changed."
+                              },
+                              "personalValues": {
+                                "type": "object",
+                                "properties": {
+                                  "isConfigured": {
+                                    "type": "boolean",
+                                    "description": "Whether you have set every value this service requires from you. Until you do, the proxy refuses this service's requests from your sessions."
+                                  },
+                                  "fields": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "field": {
+                                          "type": "string",
+                                          "enum": [
+                                            "credential-value",
+                                            "credential-username"
+                                          ],
+                                          "description": "Which value: credential-value (a bearer token or a basic password) or credential-username (a basic username)."
+                                        },
+                                        "isSet": {
+                                          "type": "boolean",
+                                          "description": "Whether you have set this value."
+                                        },
+                                        "updatedAt": {
+                                          "type": "string",
+                                          "format": "date-time",
+                                          "nullable": true,
+                                          "description": "When you last set this value, or null if you haven't."
+                                        },
+                                        "variableReferences": {
+                                          "type": "array",
+                                          "items": {
+                                            "type": "object",
+                                            "properties": {
+                                              "variableId": {
+                                                "type": "string",
+                                                "format": "uuid",
+                                                "description": "The ID of the variable."
+                                              },
+                                              "key": {
+                                                "type": "string",
+                                                "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                              }
+                                            },
+                                            "required": [
+                                              "variableId",
+                                              "key"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          "description": "Your personal variables that this value uses."
+                                        }
+                                      },
+                                      "required": [
+                                        "field",
+                                        "isSet",
+                                        "updatedAt",
+                                        "variableReferences"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "description": "Each value the service requires from you, and whether you have set it."
+                                  }
+                                },
+                                "required": [
+                                  "isConfigured",
+                                  "fields"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Your personal values for the service, or null if the service leaves no fields to its members. Only you can see these, and a stored value never comes back.",
+                                "nullable": true
                               }
                             },
                             "required": [
@@ -60555,7 +60701,8 @@
                               "customHeaders",
                               "substitutions",
                               "createdAt",
-                              "updatedAt"
+                              "updatedAt",
+                              "personalValues"
                             ],
                             "additionalProperties": false
                           }
@@ -61437,11 +61584,21 @@
                             "maxLength": 8192,
                             "pattern": "^[^\\x00-\\x1f\\x7f]*$",
                             "description": "The secret. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Never returned once saved."
+                          },
+                          "memberProvidedFields": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "credential-value"
+                              ]
+                            },
+                            "maxItems": 1,
+                            "description": "Leave the token to each member: send `credential-value` here and no `value`. Every member sets their own, and a session uses the token of whoever it belongs to. Omit on update to keep the current setting; send an empty list to set the token yourself again, which then needs a `value`. Changing this clears every member's saved values for the service."
                           }
                         },
                         "required": [
-                          "type",
-                          "value"
+                          "type"
                         ],
                         "additionalProperties": false,
                         "title": "Bearer"
@@ -61466,12 +61623,22 @@
                             "maxLength": 8192,
                             "pattern": "^[^\\x00-\\x1f\\x7f]*$",
                             "description": "The password half of the basic credential. May be empty if a username is set, for APIs that carry the whole key in the username. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Never returned once saved."
+                          },
+                          "memberProvidedFields": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "credential-value",
+                                "credential-username"
+                              ]
+                            },
+                            "maxItems": 2,
+                            "description": "The halves of the basic credential each member sets for themselves: `credential-username`, `credential-value` (the password) or both. Send no value for a half listed here. A session uses the values of whoever it belongs to. Omit on update to keep the current setting. Adding a half keeps what members saved, and taking one back deletes only that half's values. Changing the credential type deletes every member's values for the service."
                           }
                         },
                         "required": [
-                          "type",
-                          "username",
-                          "password"
+                          "type"
                         ],
                         "additionalProperties": false,
                         "title": "Basic Auth"
@@ -61669,12 +61836,23 @@
                                 "headerPrefix": {
                                   "type": "string",
                                   "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
+                                },
+                                "memberProvidedFields": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "credential-value"
+                                    ]
+                                  },
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
                                 }
                               },
                               "required": [
                                 "type",
                                 "headerName",
-                                "headerPrefix"
+                                "headerPrefix",
+                                "memberProvidedFields"
                               ],
                               "additionalProperties": false,
                               "title": "Bearer"
@@ -61687,10 +61865,22 @@
                                   "enum": [
                                     "basic"
                                   ]
+                                },
+                                "memberProvidedFields": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "credential-value",
+                                      "credential-username"
+                                    ]
+                                  },
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
                                 }
                               },
                               "required": [
-                                "type"
+                                "type",
+                                "memberProvidedFields"
                               ],
                               "additionalProperties": false,
                               "title": "Basic Auth"
@@ -61792,7 +61982,7 @@
                                   },
                                   "key": {
                                     "type": "string",
-                                    "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                    "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
                                   },
                                   "field": {
                                     "type": "string",
@@ -61821,7 +62011,7 @@
                                   },
                                   "key": {
                                     "type": "string",
-                                    "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                    "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
                                   },
                                   "field": {
                                     "type": "string",
@@ -61855,7 +62045,7 @@
                                   },
                                   "key": {
                                     "type": "string",
-                                    "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                    "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
                                   },
                                   "field": {
                                     "type": "string",
@@ -61881,7 +62071,7 @@
                               }
                             ]
                           },
-                          "description": "The variables this service's credential, custom header values and substitution values use. Not returned to Agent Vault members, since only admins can see variables."
+                          "description": "The global variables this service's credential, custom header values and substitution values use. Not returned to Agent Vault members, since only admins can see global variables. A member's own personal variables are listed under personalValues."
                         },
                         "createdAt": {
                           "type": "string",
@@ -62209,6 +62399,17 @@
                             "maxLength": 8192,
                             "pattern": "^[^\\x00-\\x1f\\x7f]*$",
                             "description": "The secret. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Omit to keep the stored secret."
+                          },
+                          "memberProvidedFields": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "credential-value"
+                              ]
+                            },
+                            "maxItems": 1,
+                            "description": "Leave the token to each member: send `credential-value` here and no `value`. Every member sets their own, and a session uses the token of whoever it belongs to. Omit on update to keep the current setting; send an empty list to set the token yourself again, which then needs a `value`. Changing this clears every member's saved values for the service."
                           }
                         },
                         "required": [
@@ -62237,6 +62438,18 @@
                             "maxLength": 8192,
                             "pattern": "^[^\\x00-\\x1f\\x7f]*$",
                             "description": "The password half of the basic credential. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Omit to keep the stored password; send an empty string to remove it, which requires a username."
+                          },
+                          "memberProvidedFields": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "credential-value",
+                                "credential-username"
+                              ]
+                            },
+                            "maxItems": 2,
+                            "description": "The halves of the basic credential each member sets for themselves: `credential-username`, `credential-value` (the password) or both. Send no value for a half listed here. A session uses the values of whoever it belongs to. Omit on update to keep the current setting. Adding a half keeps what members saved, and taking one back deletes only that half's values. Changing the credential type deletes every member's values for the service."
                           }
                         },
                         "required": [
@@ -62451,12 +62664,23 @@
                                 "headerPrefix": {
                                   "type": "string",
                                   "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
+                                },
+                                "memberProvidedFields": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "credential-value"
+                                    ]
+                                  },
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
                                 }
                               },
                               "required": [
                                 "type",
                                 "headerName",
-                                "headerPrefix"
+                                "headerPrefix",
+                                "memberProvidedFields"
                               ],
                               "additionalProperties": false,
                               "title": "Bearer"
@@ -62469,10 +62693,22 @@
                                   "enum": [
                                     "basic"
                                   ]
+                                },
+                                "memberProvidedFields": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "credential-value",
+                                      "credential-username"
+                                    ]
+                                  },
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
                                 }
                               },
                               "required": [
-                                "type"
+                                "type",
+                                "memberProvidedFields"
                               ],
                               "additionalProperties": false,
                               "title": "Basic Auth"
@@ -62574,7 +62810,7 @@
                                   },
                                   "key": {
                                     "type": "string",
-                                    "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                    "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
                                   },
                                   "field": {
                                     "type": "string",
@@ -62603,7 +62839,7 @@
                                   },
                                   "key": {
                                     "type": "string",
-                                    "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                    "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
                                   },
                                   "field": {
                                     "type": "string",
@@ -62637,7 +62873,7 @@
                                   },
                                   "key": {
                                     "type": "string",
-                                    "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                    "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
                                   },
                                   "field": {
                                     "type": "string",
@@ -62663,7 +62899,7 @@
                               }
                             ]
                           },
-                          "description": "The variables this service's credential, custom header values and substitution values use. Not returned to Agent Vault members, since only admins can see variables."
+                          "description": "The global variables this service's credential, custom header values and substitution values use. Not returned to Agent Vault members, since only admins can see global variables. A member's own personal variables are listed under personalValues."
                         },
                         "createdAt": {
                           "type": "string",
@@ -63006,12 +63242,23 @@
                                 "headerPrefix": {
                                   "type": "string",
                                   "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
+                                },
+                                "memberProvidedFields": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "credential-value"
+                                    ]
+                                  },
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
                                 }
                               },
                               "required": [
                                 "type",
                                 "headerName",
-                                "headerPrefix"
+                                "headerPrefix",
+                                "memberProvidedFields"
                               ],
                               "additionalProperties": false,
                               "title": "Bearer"
@@ -63024,10 +63271,22 @@
                                   "enum": [
                                     "basic"
                                   ]
+                                },
+                                "memberProvidedFields": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "credential-value",
+                                      "credential-username"
+                                    ]
+                                  },
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
                                 }
                               },
                               "required": [
-                                "type"
+                                "type",
+                                "memberProvidedFields"
                               ],
                               "additionalProperties": false,
                               "title": "Basic Auth"
@@ -63129,7 +63388,7 @@
                                   },
                                   "key": {
                                     "type": "string",
-                                    "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                    "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
                                   },
                                   "field": {
                                     "type": "string",
@@ -63158,7 +63417,7 @@
                                   },
                                   "key": {
                                     "type": "string",
-                                    "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                    "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
                                   },
                                   "field": {
                                     "type": "string",
@@ -63192,7 +63451,7 @@
                                   },
                                   "key": {
                                     "type": "string",
-                                    "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                    "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
                                   },
                                   "field": {
                                     "type": "string",
@@ -63218,7 +63477,7 @@
                               }
                             ]
                           },
-                          "description": "The variables this service's credential, custom header values and substitution values use. Not returned to Agent Vault members, since only admins can see variables."
+                          "description": "The global variables this service's credential, custom header values and substitution values use. Not returned to Agent Vault members, since only admins can see global variables. A member's own personal variables are listed under personalValues."
                         },
                         "createdAt": {
                           "type": "string",
@@ -63250,6 +63509,737 @@
                   },
                   "required": [
                     "service"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agent-vault/access-bundles/{accessBundleId}/services/{serviceId}/personal-values": {
+      "patch": {
+        "operationId": "setAgentVaultServicePersonalValues",
+        "tags": [
+          "Agent Vault Access Bundles"
+        ],
+        "description": "Set your personal values for a service. A field you send replaces what you saved for it, and a field you leave out keeps its saved value. Every field the service leaves to its members must be set once the update is applied.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "values": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string",
+                              "enum": [
+                                "credential-username"
+                              ],
+                              "description": "Which value: credential-value (a bearer token or a basic password) or credential-username (a basic username)."
+                            },
+                            "value": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 256,
+                              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                              "description": "The value. Can use up to 3 references to your personal variables, written as `{{KEY}}`. Never returned once saved."
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "value"
+                          ],
+                          "additionalProperties": false,
+                          "title": "Username"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string",
+                              "enum": [
+                                "credential-value"
+                              ],
+                              "description": "Which value: credential-value (a bearer token or a basic password) or credential-username (a basic username)."
+                            },
+                            "value": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 8192,
+                              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                              "description": "The value. Can use up to 3 references to your personal variables, written as `{{KEY}}`. Never returned once saved."
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "value"
+                          ],
+                          "additionalProperties": false,
+                          "title": "Token or Password"
+                        }
+                      ]
+                    },
+                    "minItems": 1,
+                    "maxItems": 2,
+                    "description": "The values to set, at most one per field the service leaves to its members. A field you leave out keeps its saved value, so after a field becomes member provided you only need to send that one."
+                  },
+                  "credentialType": {
+                    "type": "string",
+                    "enum": [
+                      "bearer",
+                      "basic",
+                      "passthrough"
+                    ],
+                    "description": "The credential type you expect the service to have. If it no longer matches, the request fails with a 409."
+                  }
+                },
+                "required": [
+                  "values"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "accessBundleId",
+            "required": true,
+            "description": "The ID of the access bundle."
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "serviceId",
+            "required": true,
+            "description": "The ID of the service."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "personalValues": {
+                      "type": "object",
+                      "properties": {
+                        "isConfigured": {
+                          "type": "boolean",
+                          "description": "Whether you have set every value this service requires from you. Until you do, the proxy refuses this service's requests from your sessions."
+                        },
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string",
+                                "enum": [
+                                  "credential-value",
+                                  "credential-username"
+                                ],
+                                "description": "Which value: credential-value (a bearer token or a basic password) or credential-username (a basic username)."
+                              },
+                              "isSet": {
+                                "type": "boolean",
+                                "description": "Whether you have set this value."
+                              },
+                              "updatedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true,
+                                "description": "When you last set this value, or null if you haven't."
+                              },
+                              "variableReferences": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "variableId": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "description": "The ID of the variable."
+                                    },
+                                    "key": {
+                                      "type": "string",
+                                      "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                    }
+                                  },
+                                  "required": [
+                                    "variableId",
+                                    "key"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "description": "Your personal variables that this value uses."
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "isSet",
+                              "updatedAt",
+                              "variableReferences"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "Each value the service requires from you, and whether you have set it."
+                        }
+                      },
+                      "required": [
+                        "isConfigured",
+                        "fields"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Your personal values for the service, or null if the service leaves no fields to its members. Only you can see these, and a stored value never comes back."
+                    }
+                  },
+                  "required": [
+                    "personalValues"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteAgentVaultServicePersonalValues",
+        "tags": [
+          "Agent Vault Access Bundles"
+        ],
+        "description": "Delete your personal values for a service. Until you set them again, the proxy refuses that service's requests from your sessions.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "accessBundleId",
+            "required": true,
+            "description": "The ID of the access bundle."
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "serviceId",
+            "required": true,
+            "description": "The ID of the service."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "personalValues": {
+                      "type": "object",
+                      "properties": {
+                        "isConfigured": {
+                          "type": "boolean",
+                          "description": "Whether you have set every value this service requires from you. Until you do, the proxy refuses this service's requests from your sessions."
+                        },
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string",
+                                "enum": [
+                                  "credential-value",
+                                  "credential-username"
+                                ],
+                                "description": "Which value: credential-value (a bearer token or a basic password) or credential-username (a basic username)."
+                              },
+                              "isSet": {
+                                "type": "boolean",
+                                "description": "Whether you have set this value."
+                              },
+                              "updatedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true,
+                                "description": "When you last set this value, or null if you haven't."
+                              },
+                              "variableReferences": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "variableId": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "description": "The ID of the variable."
+                                    },
+                                    "key": {
+                                      "type": "string",
+                                      "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                                    }
+                                  },
+                                  "required": [
+                                    "variableId",
+                                    "key"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "description": "Your personal variables that this value uses."
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "isSet",
+                              "updatedAt",
+                              "variableReferences"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "Each value the service requires from you, and whether you have set it."
+                        }
+                      },
+                      "required": [
+                        "isConfigured",
+                        "fields"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Your personal values for the service, or null if the service leaves no fields to its members. Only you can see these, and a stored value never comes back."
+                    }
+                  },
+                  "required": [
+                    "personalValues"
                   ],
                   "additionalProperties": false
                 }
@@ -65217,8 +66207,21 @@
         "tags": [
           "Agent Vault Variables"
         ],
-        "description": "List the variables in Agent Vault",
+        "description": "List the Agent Vault variables you can see: your own personal ones, and the global ones if you're an admin",
         "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "global",
+                "personal"
+              ]
+            },
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "description": "Which variables to list: global, which needs the admin role, or personal for your own. Omit to list everything you can see: your own personal variables, plus the global ones if you're an admin. Nobody can list another member's personal variables."
+          },
           {
             "schema": {
               "type": "string",
@@ -65270,7 +66273,7 @@
             "in": "query",
             "name": "keys",
             "required": false,
-            "description": "Return only the variables with these exact keys, comma-separated. Every one that exists is returned unless limit is set."
+            "description": "Return only the variables with these exact keys, comma-separated. Every one that exists is returned unless limit is set. Requires scope, since a key can name both a global variable and one of your own."
           },
           {
             "schema": {
@@ -65327,7 +66330,15 @@
                           },
                           "key": {
                             "type": "string",
-                            "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                            "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                          },
+                          "scope": {
+                            "type": "string",
+                            "enum": [
+                              "global",
+                              "personal"
+                            ],
+                            "description": "global for a variable admins set up for services, or personal for one of your own, which only your personal values can use and only you can see. Personal keys are unique among your own variables."
                           },
                           "usedByServices": {
                             "type": "array",
@@ -65366,7 +66377,7 @@
                               ],
                               "additionalProperties": false
                             },
-                            "description": "The services that use this variable, across every access bundle, ordered by access bundle name and then service name. A variable in use can't be deleted."
+                            "description": "The services that use this variable, across every access bundle, ordered by access bundle name and then service name. For a personal variable, the services whose personal values, as you set them, use it. A variable in use can't be deleted."
                           },
                           "createdAt": {
                             "type": "string",
@@ -65382,6 +66393,7 @@
                         "required": [
                           "id",
                           "key",
+                          "scope",
                           "usedByServices",
                           "createdAt",
                           "updatedAt"
@@ -65613,7 +66625,7 @@
         "tags": [
           "Agent Vault Variables"
         ],
-        "description": "Create a variable in Agent Vault",
+        "description": "Create a global variable, or a personal one of your own",
         "requestBody": {
           "required": true,
           "content": {
@@ -65621,12 +66633,20 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "global",
+                      "personal"
+                    ],
+                    "description": "global creates a variable services can use, which needs the admin role. personal creates one of your own, which only your personal values can use."
+                  },
                   "key": {
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 64,
                     "pattern": "^[A-Z][A-Z0-9_]*$",
-                    "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                    "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
                   },
                   "value": {
                     "type": "string",
@@ -65637,6 +66657,7 @@
                   }
                 },
                 "required": [
+                  "scope",
                   "key",
                   "value"
                 ],
@@ -65663,7 +66684,15 @@
                         },
                         "key": {
                           "type": "string",
-                          "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                          "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                        },
+                        "scope": {
+                          "type": "string",
+                          "enum": [
+                            "global",
+                            "personal"
+                          ],
+                          "description": "global for a variable admins set up for services, or personal for one of your own, which only your personal values can use and only you can see. Personal keys are unique among your own variables."
                         },
                         "usedByServices": {
                           "type": "array",
@@ -65702,7 +66731,7 @@
                             ],
                             "additionalProperties": false
                           },
-                          "description": "The services that use this variable, across every access bundle, ordered by access bundle name and then service name. A variable in use can't be deleted."
+                          "description": "The services that use this variable, across every access bundle, ordered by access bundle name and then service name. For a personal variable, the services whose personal values, as you set them, use it. A variable in use can't be deleted."
                         },
                         "createdAt": {
                           "type": "string",
@@ -65718,6 +66747,7 @@
                       "required": [
                         "id",
                         "key",
+                        "scope",
                         "usedByServices",
                         "createdAt",
                         "updatedAt"
@@ -65945,7 +66975,7 @@
         "tags": [
           "Agent Vault Variables"
         ],
-        "description": "Update a variable in Agent Vault",
+        "description": "Update a global variable, or a personal one of your own",
         "requestBody": {
           "required": true,
           "content": {
@@ -65958,7 +66988,7 @@
                     "minLength": 1,
                     "maxLength": 64,
                     "pattern": "^[A-Z][A-Z0-9_]*$",
-                    "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                    "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
                   },
                   "value": {
                     "type": "string",
@@ -66003,7 +67033,15 @@
                         },
                         "key": {
                           "type": "string",
-                          "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                          "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                        },
+                        "scope": {
+                          "type": "string",
+                          "enum": [
+                            "global",
+                            "personal"
+                          ],
+                          "description": "global for a variable admins set up for services, or personal for one of your own, which only your personal values can use and only you can see. Personal keys are unique among your own variables."
                         },
                         "usedByServices": {
                           "type": "array",
@@ -66042,7 +67080,7 @@
                             ],
                             "additionalProperties": false
                           },
-                          "description": "The services that use this variable, across every access bundle, ordered by access bundle name and then service name. A variable in use can't be deleted."
+                          "description": "The services that use this variable, across every access bundle, ordered by access bundle name and then service name. For a personal variable, the services whose personal values, as you set them, use it. A variable in use can't be deleted."
                         },
                         "createdAt": {
                           "type": "string",
@@ -66058,6 +67096,7 @@
                       "required": [
                         "id",
                         "key",
+                        "scope",
                         "usedByServices",
                         "createdAt",
                         "updatedAt"
@@ -66283,7 +67322,7 @@
         "tags": [
           "Agent Vault Variables"
         ],
-        "description": "Delete a variable from Agent Vault. A variable a service uses can't be deleted.",
+        "description": "Delete a global variable, or a personal one of your own. A variable in use, by a service or by your personal values, can't be deleted.",
         "parameters": [
           {
             "schema": {
@@ -66314,7 +67353,15 @@
                         },
                         "key": {
                           "type": "string",
-                          "description": "The name services use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                          "description": "The name values use to refer to the variable, as `{{KEY}}`. Starts with a letter and uses only upper case letters, numbers and underscores."
+                        },
+                        "scope": {
+                          "type": "string",
+                          "enum": [
+                            "global",
+                            "personal"
+                          ],
+                          "description": "global for a variable admins set up for services, or personal for one of your own, which only your personal values can use and only you can see. Personal keys are unique among your own variables."
                         },
                         "usedByServices": {
                           "type": "array",
@@ -66353,7 +67400,7 @@
                             ],
                             "additionalProperties": false
                           },
-                          "description": "The services that use this variable, across every access bundle, ordered by access bundle name and then service name. A variable in use can't be deleted."
+                          "description": "The services that use this variable, across every access bundle, ordered by access bundle name and then service name. For a personal variable, the services whose personal values, as you set them, use it. A variable in use can't be deleted."
                         },
                         "createdAt": {
                           "type": "string",
@@ -66369,6 +67416,7 @@
                       "required": [
                         "id",
                         "key",
+                        "scope",
                         "usedByServices",
                         "createdAt",
                         "updatedAt"
@@ -66596,7 +67644,7 @@
         "tags": [
           "Agent Vault Variables"
         ],
-        "description": "Get the value of a variable in Agent Vault",
+        "description": "Get the value of a global variable, or a personal one of your own",
         "parameters": [
           {
             "schema": {
@@ -68387,7 +69435,7 @@
         "tags": [
           "Agent Vault Session Logs"
         ],
-        "description": "Lists a session's logs newest first, as encrypted chunks of [records](/documentation/platform/agent-vault/session-logs#what-gets-recorded). To decrypt them, follow [Reading session logs through the API](/documentation/platform/agent-vault/session-logs#reading-session-logs-through-the-api). To follow new logs as they arrive, use [the endpoint that tails session logs](/api-reference/endpoints/agent-vault-session-logs/tail). If Infisical can't read the bucket, the request fails with the error `AgentVaultSessionLogStorageUnavailable`.",
+        "description": "Lists a session's logs newest first, as encrypted chunks of [records](/documentation/platform/agent-vault/session-logs#what-gets-recorded). To decrypt them, follow [Reading session logs through the API](/documentation/platform/agent-vault/session-logs#reading-session-logs-through-the-api). To follow new logs as they arrive, use [the endpoint that tails session logs](/api-reference/endpoints/agent-vault-session-logs/tail). If Infisical can't read session logs, the request fails with the error `AgentVaultSessionLogStorageUnavailable`.",
         "parameters": [
           {
             "schema": {
@@ -68453,12 +69501,32 @@
                           "type": "string",
                           "nullable": true,
                           "description": "The key that decrypts every chunk in this response, as base64. Null if the response has no chunks."
+                        },
+                        "disabledReason": {
+                          "type": "string",
+                          "enum": [
+                            "off",
+                            "not-on-plan"
+                          ],
+                          "nullable": true,
+                          "description": "Why no logs are returned: `off` when session logs are off, `not-on-plan` when the plan doesn't include the storage they use. Null when logs are returned."
+                        },
+                        "storageType": {
+                          "type": "string",
+                          "enum": [
+                            "default",
+                            "external"
+                          ],
+                          "nullable": true,
+                          "description": "Where this session's logs are read from: `default` or `external`. Null when session logs are off."
                         }
                       },
                       "required": [
                         "enabled",
                         "isRecordable",
-                        "sessionKey"
+                        "sessionKey",
+                        "disabledReason",
+                        "storageType"
                       ],
                       "additionalProperties": false,
                       "description": "Whether session logs are on, whether this session can be recorded, and the key that decrypts the chunks."
@@ -68722,7 +69790,7 @@
         "tags": [
           "Agent Vault Session Logs"
         ],
-        "description": "Lists chunks added since your last call. Call it every few seconds with the previous `nextCursor`. Any call can return a chunk you already have, so skip any whose `chunkId` and `proxyId` you've read. The chunks decrypt the same way as the ones from [the endpoint that lists session logs](/api-reference/endpoints/agent-vault-session-logs/list). If the AWS connection for session logs can't be used, the request fails with the error `AgentVaultSessionLogStorageUnavailable`.",
+        "description": "Lists chunks added since your last call. Call it every few seconds with the previous `nextCursor`. Any call can return a chunk you already have, so skip any whose `chunkId` and `proxyId` you've read. The chunks decrypt the same way as the ones from [the endpoint that lists session logs](/api-reference/endpoints/agent-vault-session-logs/list). If Infisical can't read session logs, the request fails with the error `AgentVaultSessionLogStorageUnavailable`.",
         "parameters": [
           {
             "schema": {
@@ -68768,12 +69836,32 @@
                           "type": "string",
                           "nullable": true,
                           "description": "The key that decrypts every chunk in this response, as base64. Null if the response has no chunks."
+                        },
+                        "disabledReason": {
+                          "type": "string",
+                          "enum": [
+                            "off",
+                            "not-on-plan"
+                          ],
+                          "nullable": true,
+                          "description": "Why no logs are returned: `off` when session logs are off, `not-on-plan` when the plan doesn't include the storage they use. Null when logs are returned."
+                        },
+                        "storageType": {
+                          "type": "string",
+                          "enum": [
+                            "default",
+                            "external"
+                          ],
+                          "nullable": true,
+                          "description": "Where this session's logs are read from: `default` or `external`. Null when session logs are off."
                         }
                       },
                       "required": [
                         "enabled",
                         "isRecordable",
-                        "sessionKey"
+                        "sessionKey",
+                        "disabledReason",
+                        "storageType"
                       ],
                       "additionalProperties": false,
                       "description": "Whether session logs are on, whether this session can be recorded, and the key that decrypts the chunks."
@@ -69050,42 +70138,92 @@
                       "properties": {
                         "enabled": {
                           "type": "boolean",
-                          "description": "Whether session logs are on. Turning them off stops recording but keeps what's already recorded."
+                          "description": "Whether session logs are on. Turning them off hides recorded logs."
                         },
-                        "appConnectionId": {
-                          "type": "string",
-                          "format": "uuid",
-                          "nullable": true,
-                          "description": "The ID of the AWS connection Infisical uses to write to and read from the bucket."
-                        },
-                        "bucket": {
-                          "type": "string",
-                          "nullable": true,
-                          "description": "The name of the S3 bucket. 3 to 63 characters: lowercase letters, numbers, dots and hyphens, starting and ending with a letter or number."
-                        },
-                        "region": {
-                          "type": "string",
-                          "nullable": true,
-                          "description": "The AWS region of the bucket."
-                        },
-                        "keyPrefix": {
-                          "type": "string",
-                          "nullable": true,
-                          "description": "The folder in the bucket to store session logs in, such as `logs/agent-vault`. Up to 512 characters: letters, numbers and `! - _ . ' ( ) /`, with no slash at the start or end, no empty folder name, and no folder named `.` or `..`."
+                        "storage": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "default"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "type"
+                              ],
+                              "additionalProperties": false,
+                              "title": "Default Storage"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "external"
+                                  ]
+                                },
+                                "appConnectionId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "The ID of the AWS connection Infisical uses to write to and read from the bucket."
+                                },
+                                "bucket": {
+                                  "type": "string",
+                                  "description": "The name of the S3 bucket. 3 to 63 characters: lowercase letters, numbers, dots and hyphens, starting and ending with a letter or number."
+                                },
+                                "region": {
+                                  "type": "string",
+                                  "description": "The AWS region of the bucket."
+                                },
+                                "keyPrefix": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The folder in the bucket to store session logs in, such as `logs/agent-vault`. Up to 256 characters: letters, numbers and `! - _ . ' ( ) /`, with no slash at the start or end, no empty folder name, and no folder named `.` or `..`."
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "appConnectionId",
+                                "bucket",
+                                "region",
+                                "keyPrefix"
+                              ],
+                              "additionalProperties": false,
+                              "title": "External Storage"
+                            }
+                          ],
+                          "description": "Where session logs are stored: `default`, stored by Infisical, or `external`, an S3 bucket you own. Required when turning session logs on."
                         }
                       },
                       "required": [
                         "enabled",
-                        "appConnectionId",
-                        "bucket",
-                        "region",
-                        "keyPrefix"
+                        "storage"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    },
+                    "defaultStorage": {
+                      "type": "object",
+                      "properties": {
+                        "configured": {
+                          "type": "boolean",
+                          "description": "Whether default storage is available. Using it also needs a plan that includes it."
+                        }
+                      },
+                      "required": [
+                        "configured"
                       ],
                       "additionalProperties": false
                     }
                   },
                   "required": [
-                    "settings"
+                    "settings",
+                    "defaultStorage"
                   ],
                   "additionalProperties": false
                 }
@@ -69308,67 +70446,135 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "enabled": {
-                    "type": "boolean",
-                    "description": "Whether session logs are on. Turning them off stops recording but keeps what's already recorded."
-                  },
-                  "appConnectionId": {
-                    "type": "string",
-                    "format": "uuid",
-                    "nullable": true,
-                    "description": "The ID of the AWS connection Infisical uses to write to and read from the bucket."
-                  },
-                  "bucket": {
-                    "type": "string",
-                    "maxLength": 63,
-                    "pattern": "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$",
-                    "description": "The name of the S3 bucket. 3 to 63 characters: lowercase letters, numbers, dots and hyphens, starting and ending with a letter or number."
-                  },
-                  "region": {
-                    "type": "string",
-                    "enum": [
-                      "us-east-1",
-                      "us-east-2",
-                      "us-west-1",
-                      "us-west-2",
-                      "us-gov-east-1",
-                      "us-gov-west-1",
-                      "af-south-1",
-                      "ap-east-1",
-                      "ap-south-1",
-                      "ap-south-2",
-                      "ap-northeast-1",
-                      "ap-northeast-2",
-                      "ap-northeast-3",
-                      "ap-southeast-1",
-                      "ap-southeast-2",
-                      "ap-southeast-3",
-                      "ap-southeast-4",
-                      "ca-central-1",
-                      "eu-central-1",
-                      "eu-central-2",
-                      "eu-west-1",
-                      "eu-west-2",
-                      "eu-west-3",
-                      "eu-south-1",
-                      "eu-south-2",
-                      "eu-north-1",
-                      "me-south-1",
-                      "me-central-1",
-                      "sa-east-1"
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "enum": [
+                          false
+                        ],
+                        "description": "Whether session logs are on. Turning them off hides recorded logs."
+                      }
+                    },
+                    "required": [
+                      "enabled"
                     ],
-                    "description": "The AWS region of the bucket."
+                    "additionalProperties": false,
+                    "title": "Turn Off"
                   },
-                  "keyPrefix": {
-                    "type": "string",
-                    "maxLength": 512,
-                    "pattern": "^[A-Za-z0-9!\\-_.'()/]*$",
-                    "description": "The folder in the bucket to store session logs in, such as `logs/agent-vault`. Up to 512 characters: letters, numbers and `! - _ . ' ( ) /`, with no slash at the start or end, no empty folder name, and no folder named `.` or `..`."
+                  {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "enum": [
+                          true
+                        ],
+                        "description": "Whether session logs are on. Turning them off hides recorded logs."
+                      },
+                      "storage": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "default"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Default Storage"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "external"
+                                ]
+                              },
+                              "appConnectionId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "The ID of the AWS connection Infisical uses to write to and read from the bucket."
+                              },
+                              "bucket": {
+                                "type": "string",
+                                "maxLength": 63,
+                                "pattern": "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$",
+                                "description": "The name of the S3 bucket. 3 to 63 characters: lowercase letters, numbers, dots and hyphens, starting and ending with a letter or number."
+                              },
+                              "region": {
+                                "type": "string",
+                                "enum": [
+                                  "us-east-1",
+                                  "us-east-2",
+                                  "us-west-1",
+                                  "us-west-2",
+                                  "us-gov-east-1",
+                                  "us-gov-west-1",
+                                  "af-south-1",
+                                  "ap-east-1",
+                                  "ap-south-1",
+                                  "ap-south-2",
+                                  "ap-northeast-1",
+                                  "ap-northeast-2",
+                                  "ap-northeast-3",
+                                  "ap-southeast-1",
+                                  "ap-southeast-2",
+                                  "ap-southeast-3",
+                                  "ap-southeast-4",
+                                  "ca-central-1",
+                                  "eu-central-1",
+                                  "eu-central-2",
+                                  "eu-west-1",
+                                  "eu-west-2",
+                                  "eu-west-3",
+                                  "eu-south-1",
+                                  "eu-south-2",
+                                  "eu-north-1",
+                                  "me-south-1",
+                                  "me-central-1",
+                                  "sa-east-1"
+                                ],
+                                "description": "The AWS region of the bucket."
+                              },
+                              "keyPrefix": {
+                                "type": "string",
+                                "maxLength": 256,
+                                "pattern": "^[A-Za-z0-9!\\-_.'()\\/]*$",
+                                "description": "The folder in the bucket to store session logs in, such as `logs/agent-vault`. Up to 256 characters: letters, numbers and `! - _ . ' ( ) /`, with no slash at the start or end, no empty folder name, and no folder named `.` or `..`."
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "appConnectionId",
+                              "bucket",
+                              "region"
+                            ],
+                            "additionalProperties": false,
+                            "title": "External Storage"
+                          }
+                        ],
+                        "description": "Where session logs are stored: `default`, stored by Infisical, or `external`, an S3 bucket you own. Required when turning session logs on."
+                      }
+                    },
+                    "required": [
+                      "enabled",
+                      "storage"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Turn On"
                   }
-                },
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -69386,42 +70592,92 @@
                       "properties": {
                         "enabled": {
                           "type": "boolean",
-                          "description": "Whether session logs are on. Turning them off stops recording but keeps what's already recorded."
+                          "description": "Whether session logs are on. Turning them off hides recorded logs."
                         },
-                        "appConnectionId": {
-                          "type": "string",
-                          "format": "uuid",
-                          "nullable": true,
-                          "description": "The ID of the AWS connection Infisical uses to write to and read from the bucket."
-                        },
-                        "bucket": {
-                          "type": "string",
-                          "nullable": true,
-                          "description": "The name of the S3 bucket. 3 to 63 characters: lowercase letters, numbers, dots and hyphens, starting and ending with a letter or number."
-                        },
-                        "region": {
-                          "type": "string",
-                          "nullable": true,
-                          "description": "The AWS region of the bucket."
-                        },
-                        "keyPrefix": {
-                          "type": "string",
-                          "nullable": true,
-                          "description": "The folder in the bucket to store session logs in, such as `logs/agent-vault`. Up to 512 characters: letters, numbers and `! - _ . ' ( ) /`, with no slash at the start or end, no empty folder name, and no folder named `.` or `..`."
+                        "storage": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "default"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "type"
+                              ],
+                              "additionalProperties": false,
+                              "title": "Default Storage"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "external"
+                                  ]
+                                },
+                                "appConnectionId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "The ID of the AWS connection Infisical uses to write to and read from the bucket."
+                                },
+                                "bucket": {
+                                  "type": "string",
+                                  "description": "The name of the S3 bucket. 3 to 63 characters: lowercase letters, numbers, dots and hyphens, starting and ending with a letter or number."
+                                },
+                                "region": {
+                                  "type": "string",
+                                  "description": "The AWS region of the bucket."
+                                },
+                                "keyPrefix": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The folder in the bucket to store session logs in, such as `logs/agent-vault`. Up to 256 characters: letters, numbers and `! - _ . ' ( ) /`, with no slash at the start or end, no empty folder name, and no folder named `.` or `..`."
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "appConnectionId",
+                                "bucket",
+                                "region",
+                                "keyPrefix"
+                              ],
+                              "additionalProperties": false,
+                              "title": "External Storage"
+                            }
+                          ],
+                          "description": "Where session logs are stored: `default`, stored by Infisical, or `external`, an S3 bucket you own. Required when turning session logs on."
                         }
                       },
                       "required": [
                         "enabled",
-                        "appConnectionId",
-                        "bucket",
-                        "region",
-                        "keyPrefix"
+                        "storage"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    },
+                    "defaultStorage": {
+                      "type": "object",
+                      "properties": {
+                        "configured": {
+                          "type": "boolean",
+                          "description": "Whether default storage is available. Using it also needs a plan that includes it."
+                        }
+                      },
+                      "required": [
+                        "configured"
                       ],
                       "additionalProperties": false
                     }
                   },
                   "required": [
-                    "settings"
+                    "settings",
+                    "defaultStorage"
                   ],
                   "additionalProperties": false
                 }
@@ -73197,7 +74453,7 @@
         "tags": [
           "Agent Vault Proxies"
         ],
-        "description": "Register an Agent Vault proxy and issue its one-time enrollment token",
+        "description": "Register an Agent Vault proxy and issue its proxy token",
         "requestBody": {
           "required": true,
           "content": {
@@ -73322,19 +74578,14 @@
                       "additionalProperties": false,
                       "title": "Admin view"
                     },
-                    "token": {
+                    "proxyToken": {
                       "type": "string",
-                      "description": "A one-time token the proxy enrolls with. Shown once, and valid for one hour."
-                    },
-                    "expiresAt": {
-                      "type": "string",
-                      "format": "date-time"
+                      "description": "The token the proxy starts with, on as many machines as you need. Shown once, and works until it is rotated or the proxy's access is revoked."
                     }
                   },
                   "required": [
                     "proxy",
-                    "token",
-                    "expiresAt"
+                    "proxyToken"
                   ],
                   "additionalProperties": false
                 }
@@ -74156,13 +75407,13 @@
         }
       }
     },
-    "/api/v1/agent-vault/proxies/{proxyId}/token-auth/enrollment-token": {
+    "/api/v1/agent-vault/proxies/{proxyId}/token-auth/proxy-token": {
       "post": {
-        "operationId": "reissueAgentVaultProxyEnrollmentToken",
+        "operationId": "rotateAgentVaultProxyToken",
         "tags": [
           "Agent Vault Proxies"
         ],
-        "description": "Issue a replacement enrollment token for an Agent Vault proxy",
+        "description": "Issue a new proxy token. The proxy's earlier tokens stop working and it gets a new certificate authority.",
         "parameters": [
           {
             "schema": {
@@ -74183,18 +75434,85 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "token": {
-                      "type": "string",
-                      "description": "A one-time token the proxy enrolls with. Shown once, and valid for one hour."
+                    "proxy": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "The ID of the proxy."
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "The name of the proxy."
+                        },
+                        "heartbeat": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true,
+                          "description": "When the proxy last checked in, or `null` if it never has."
+                        },
+                        "isHealthy": {
+                          "type": "boolean",
+                          "description": "Whether the proxy has checked in recently enough to be considered up."
+                        },
+                        "rootCaFingerprint": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "The SHA-256 fingerprint of the proxy's certificate authority. Pin this if you want to verify the proxy an agent connects to."
+                        },
+                        "rootCaExpiresAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true,
+                          "description": "When the proxy's certificate authority expires."
+                        },
+                        "trafficPolicy": {
+                          "type": "string",
+                          "enum": [
+                            "any-host",
+                            "bundle-hosts"
+                          ],
+                          "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `bundle-hosts` allows only hosts an access bundle covers, plus anything in `allowedHosts`, and refuses the rest with a 403."
+                        },
+                        "allowedHosts": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Hosts that stay reachable under the `bundle-hosts` traffic policy even though no access bundle covers them. Still intercepted, and given no credential."
+                        },
+                        "pollInterval": {
+                          "type": "number",
+                          "description": "How often, in seconds, the proxy refreshes its sessions and settings. Between 10 and 300."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "When the proxy was registered."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "heartbeat",
+                        "isHealthy",
+                        "rootCaFingerprint",
+                        "rootCaExpiresAt",
+                        "trafficPolicy",
+                        "allowedHosts",
+                        "pollInterval",
+                        "createdAt"
+                      ],
+                      "additionalProperties": false,
+                      "title": "Admin view"
                     },
-                    "expiresAt": {
+                    "proxyToken": {
                       "type": "string",
-                      "format": "date-time"
+                      "description": "The token the proxy starts with, on as many machines as you need. Shown once, and works until it is rotated or the proxy's access is revoked."
                     }
                   },
                   "required": [
-                    "token",
-                    "expiresAt"
+                    "proxy",
+                    "proxyToken"
                   ],
                   "additionalProperties": false
                 }
@@ -74413,7 +75731,7 @@
         "tags": [
           "Agent Vault Proxies"
         ],
-        "description": "Revoke an Agent Vault proxy's access token",
+        "description": "Revoke an Agent Vault proxy's token. Rotate its token to bring it back.",
         "parameters": [
           {
             "schema": {
@@ -104208,7 +105526,7 @@
                     },
                     {
                       "type": "string",
-                      "maxLength": 17616
+                      "maxLength": 17714
                     }
                   ]
                 },
@@ -104772,6 +106090,8 @@
                           "agent-vault-variable-update",
                           "agent-vault-variable-delete",
                           "agent-vault-variable-value-view",
+                          "agent-vault-personal-values-set",
+                          "agent-vault-personal-values-delete",
                           "agent-vault-member-add",
                           "agent-vault-member-update",
                           "agent-vault-member-remove",
@@ -104781,6 +106101,7 @@
                           "agent-vault-session-revoke",
                           "agent-vault-proxy-register",
                           "agent-vault-proxy-token-reissue",
+                          "agent-vault-proxy-token-rotate",
                           "agent-vault-proxy-enroll",
                           "agent-vault-proxy-update",
                           "agent-vault-proxy-revoke",
@@ -104920,7 +106241,7 @@
                           "update-audit-log-settings"
                         ]
                       },
-                      "maxItems": 696
+                      "maxItems": 699
                     }
                   ]
                 }
