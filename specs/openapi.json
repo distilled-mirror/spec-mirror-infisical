@@ -11326,6 +11326,7 @@
                                   "enum": [
                                     "read",
                                     "create",
+                                    "edit",
                                     "revoke"
                                   ]
                                 },
@@ -11336,6 +11337,7 @@
                                     "enum": [
                                       "read",
                                       "create",
+                                      "edit",
                                       "revoke"
                                     ]
                                   },
@@ -16819,6 +16821,7 @@
                                   "enum": [
                                     "read",
                                     "create",
+                                    "edit",
                                     "revoke"
                                   ]
                                 },
@@ -16829,6 +16832,7 @@
                                     "enum": [
                                       "read",
                                       "create",
+                                      "edit",
                                       "revoke"
                                     ]
                                   },
@@ -52151,6 +52155,7 @@
                                         "enum": [
                                           "read",
                                           "create",
+                                          "edit",
                                           "revoke"
                                         ]
                                       },
@@ -52161,6 +52166,7 @@
                                           "enum": [
                                             "read",
                                             "create",
+                                            "edit",
                                             "revoke"
                                           ]
                                         },
@@ -58145,6 +58151,7 @@
                                         "enum": [
                                           "read",
                                           "create",
+                                          "edit",
                                           "revoke"
                                         ]
                                       },
@@ -58155,6 +58162,7 @@
                                           "enum": [
                                             "read",
                                             "create",
+                                            "edit",
                                             "revoke"
                                           ]
                                         },
@@ -60324,6 +60332,28 @@
                                 "type": "string",
                                 "description": "The name of the service."
                               },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "http",
+                                  "mcp"
+                                ],
+                                "description": "The service type: `http` for an HTTP API, or `mcp` for a remote MCP server. Can't be changed after the service is created."
+                              },
+                              "serverUrl": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "The MCP server's full URL. Null for an `http` service."
+                              },
+                              "transport": {
+                                "type": "string",
+                                "enum": [
+                                  "streamable-http",
+                                  "sse"
+                                ],
+                                "nullable": true,
+                                "description": "How the agent talks to the MCP server: `streamable-http`, or `sse` for the legacy HTTP+SSE transport. Null for an `http` service."
+                              },
                               "hostPattern": {
                                 "type": "string",
                                 "description": "A comma-separated set of hosts this service covers, each optionally with a port (defaults to `443`). A leading `*.` wildcard matches exactly one label. Paths are not supported."
@@ -60435,6 +60465,68 @@
                                     ],
                                     "additionalProperties": false,
                                     "title": "Pass-through"
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "oauth"
+                                        ]
+                                      },
+                                      "status": {
+                                        "type": "string",
+                                        "enum": [
+                                          "connected",
+                                          "needs-reauthorization",
+                                          "needs-additional-scopes"
+                                        ],
+                                        "description": "Whether the OAuth connection works: `connected`, `needs-reauthorization` (the tokens can no longer be refreshed), or `needs-additional-scopes` (the MCP server asked for scopes the connection lacks)."
+                                      },
+                                      "issuer": {
+                                        "type": "string",
+                                        "description": "The OAuth authorization server that issued the tokens."
+                                      },
+                                      "grantedScopes": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        },
+                                        "description": "The scopes the authorization server granted."
+                                      },
+                                      "requiredScopes": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        },
+                                        "description": "Scopes the MCP server asked for that the connection lacks. Reauthorize to request them."
+                                      },
+                                      "expiresAt": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "description": "When the current access token expires, or null if the server didn't say. Not returned to Agent Vault members."
+                                      },
+                                      "authorizedAt": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "description": "When the connection was last authorized. Not returned to Agent Vault members."
+                                      },
+                                      "lastError": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "description": "The last refresh failure, if any. Never contains a token. Not returned to Agent Vault members."
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "status",
+                                      "issuer",
+                                      "grantedScopes",
+                                      "requiredScopes"
+                                    ],
+                                    "additionalProperties": false,
+                                    "title": "OAuth"
                                   }
                                 ]
                               },
@@ -60696,6 +60788,9 @@
                               "id",
                               "accessBundleId",
                               "name",
+                              "type",
+                              "serverUrl",
+                              "transport",
                               "hostPattern",
                               "allowedMethods",
                               "allowedPathPrefixes",
@@ -61514,242 +61609,383 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64,
-                    "description": "The name of the service."
-                  },
-                  "hostPattern": {
-                    "type": "string",
-                    "maxLength": 1024,
-                    "description": "A comma-separated set of hosts this service covers, each optionally with a port (defaults to `443`). A leading `*.` wildcard matches exactly one label. Paths are not supported."
-                  },
-                  "allowedMethods": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "enum": [
-                        "GET",
-                        "HEAD",
-                        "POST",
-                        "PUT",
-                        "PATCH",
-                        "DELETE",
-                        "OPTIONS"
-                      ]
-                    },
-                    "minItems": 1,
-                    "maxItems": 7,
-                    "nullable": true,
-                    "description": "The HTTP methods this service allows. Null allows every method. Anything else is refused by the proxy with a 403."
-                  },
-                  "allowedPathPrefixes": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "minItems": 1,
-                    "maxItems": 20,
-                    "nullable": true,
-                    "description": "The path prefixes this service allows, matched on whole segments, so `/repos` covers `/repos/octo` but not `/repositories`. `null` allows every path. A path-restricted service also refuses any request whose path would have to be normalised to judge."
-                  },
-                  "credential": {
-                    "anyOf": [
-                      {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "bearer"
-                            ]
-                          },
-                          "headerName": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 128,
-                            "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
-                            "description": "The header the credential is written to. Defaults to `Authorization`."
-                          },
-                          "headerPrefix": {
-                            "type": "string",
-                            "maxLength": 64,
-                            "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                            "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
-                          },
-                          "value": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 8192,
-                            "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                            "description": "The secret. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Never returned once saved."
-                          },
-                          "memberProvidedFields": {
-                            "type": "array",
-                            "items": {
-                              "type": "string",
-                              "enum": [
-                                "credential-value"
-                              ]
-                            },
-                            "maxItems": 1,
-                            "description": "Leave the token to each member: send `credential-value` here and no `value`. Every member sets their own, and a session uses the token of whoever it belongs to. Omit on update to keep the current setting; send an empty list to set the token yourself again, which then needs a `value`. Changing this clears every member's saved values for the service."
-                          }
-                        },
-                        "required": [
-                          "type"
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "http"
                         ],
-                        "additionalProperties": false,
-                        "title": "Bearer"
+                        "description": "The service type: `http` for an HTTP API, or `mcp` for a remote MCP server. Can't be changed after the service is created."
                       },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "basic"
-                            ]
-                          },
-                          "username": {
-                            "type": "string",
-                            "maxLength": 256,
-                            "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                            "description": "The username half of the basic credential. May be empty if a password is set. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Never returned once saved, since some APIs put the whole key here."
-                          },
-                          "password": {
-                            "type": "string",
-                            "maxLength": 8192,
-                            "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                            "description": "The password half of the basic credential. May be empty if a username is set, for APIs that carry the whole key in the username. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Never returned once saved."
-                          },
-                          "memberProvidedFields": {
-                            "type": "array",
-                            "items": {
-                              "type": "string",
-                              "enum": [
-                                "credential-value",
-                                "credential-username"
-                              ]
-                            },
-                            "maxItems": 2,
-                            "description": "The halves of the basic credential each member sets for themselves: `credential-username`, `credential-value` (the password) or both. Send no value for a half listed here. A session uses the values of whoever it belongs to. Omit on update to keep the current setting. Adding a half keeps what members saved, and taking one back deletes only that half's values. Changing the credential type deletes every member's values for the service."
-                          }
-                        },
-                        "required": [
-                          "type"
-                        ],
-                        "additionalProperties": false,
-                        "title": "Basic Auth"
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "description": "The name of the service."
                       },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "passthrough"
-                            ]
-                          }
+                      "hostPattern": {
+                        "type": "string",
+                        "maxLength": 1024,
+                        "description": "A comma-separated set of hosts this service covers, each optionally with a port (defaults to `443`). A leading `*.` wildcard matches exactly one label. Paths are not supported."
+                      },
+                      "allowedMethods": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "GET",
+                            "HEAD",
+                            "POST",
+                            "PUT",
+                            "PATCH",
+                            "DELETE",
+                            "OPTIONS"
+                          ]
                         },
-                        "required": [
-                          "type"
-                        ],
-                        "additionalProperties": false,
-                        "title": "Pass-through"
+                        "minItems": 1,
+                        "maxItems": 7,
+                        "nullable": true,
+                        "description": "The HTTP methods this service allows. Null allows every method. Anything else is refused by the proxy with a 403."
+                      },
+                      "allowedPathPrefixes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "minItems": 1,
+                        "maxItems": 20,
+                        "nullable": true,
+                        "description": "The path prefixes this service allows, matched on whole segments, so `/repos` covers `/repos/octo` but not `/repositories`. `null` allows every path. A path-restricted service also refuses any request whose path would have to be normalised to judge."
+                      },
+                      "credential": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "bearer"
+                                ]
+                              },
+                              "headerName": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
+                                "description": "The header the credential is written to. Defaults to `Authorization`."
+                              },
+                              "headerPrefix": {
+                                "type": "string",
+                                "maxLength": 64,
+                                "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
+                              },
+                              "value": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 8192,
+                                "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                "description": "The secret. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Never returned once saved."
+                              },
+                              "memberProvidedFields": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "credential-value"
+                                  ]
+                                },
+                                "maxItems": 1,
+                                "description": "Leave the token to each member: send `credential-value` here and no `value`. Every member sets their own, and a session uses the token of whoever it belongs to. Omit on update to keep the current setting; send an empty list to set the token yourself again, which then needs a `value`. Changing this clears every member's saved values for the service."
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Bearer"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "basic"
+                                ]
+                              },
+                              "username": {
+                                "type": "string",
+                                "maxLength": 256,
+                                "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                "description": "The username half of the basic credential. May be empty if a password is set. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Never returned once saved, since some APIs put the whole key here."
+                              },
+                              "password": {
+                                "type": "string",
+                                "maxLength": 8192,
+                                "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                "description": "The password half of the basic credential. May be empty if a username is set, for APIs that carry the whole key in the username. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Never returned once saved."
+                              },
+                              "memberProvidedFields": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "credential-value",
+                                    "credential-username"
+                                  ]
+                                },
+                                "maxItems": 2,
+                                "description": "The halves of the basic credential each member sets for themselves: `credential-username`, `credential-value` (the password) or both. Send no value for a half listed here. A session uses the values of whoever it belongs to. Omit on update to keep the current setting. Adding a half keeps what members saved, and taking one back deletes only that half's values. Changing the credential type deletes every member's values for the service."
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Basic Auth"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "passthrough"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Pass-through"
+                          }
+                        ]
+                      },
+                      "customHeaders": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 128,
+                              "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
+                              "description": "The name of the header, which must not be the credential's own header."
+                            },
+                            "prefix": {
+                              "type": "string",
+                              "maxLength": 64,
+                              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                              "description": "Written before the header value, separated by one space. Leave empty to send the value alone. Can't contain `{{` or `}}`."
+                            },
+                            "value": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 8192,
+                              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                              "description": "The header value. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Never returned once saved."
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "value"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "maxItems": 20,
+                        "description": "Additional headers the proxy attaches to every request to this service, on top of the credential. Send the full list. A header you leave out is deleted. Send a header's `id` to change it in place and keep its stored value. Without an `id`, a header is matched by name."
+                      },
+                      "substitutions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "placeholder": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 255,
+                              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                              "description": "The fake value your agent already sends. The proxy replaces it with the real secret. Matched as a plain string, so a distinctive placeholder is worth choosing. Can't contain `{{` or `}}`."
+                            },
+                            "surfaces": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "path",
+                                  "query",
+                                  "header",
+                                  "body"
+                                ]
+                              },
+                              "minItems": 1,
+                              "maxItems": 4,
+                              "description": "Where in the request to look for the placeholder: path, query, header or body."
+                            },
+                            "value": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 8192,
+                              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                              "description": "The real value the placeholder is replaced with. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Never returned once saved."
+                            }
+                          },
+                          "required": [
+                            "placeholder",
+                            "surfaces",
+                            "value"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "maxItems": 20,
+                        "description": "Placeholders the proxy swaps for a real secret before forwarding. Send the full list. A substitution you leave out is deleted. Send a substitution's `id` to change it in place and keep its stored value. Without an `id`, it is matched by its placeholder."
                       }
-                    ]
-                  },
-                  "customHeaders": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string",
-                          "minLength": 1,
-                          "maxLength": 128,
-                          "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
-                          "description": "The name of the header, which must not be the credential's own header."
-                        },
-                        "prefix": {
-                          "type": "string",
-                          "maxLength": 64,
-                          "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                          "description": "Written before the header value, separated by one space. Leave empty to send the value alone. Can't contain `{{` or `}}`."
-                        },
-                        "value": {
-                          "type": "string",
-                          "minLength": 1,
-                          "maxLength": 8192,
-                          "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                          "description": "The header value. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Never returned once saved."
-                        }
-                      },
-                      "required": [
-                        "name",
-                        "value"
-                      ],
-                      "additionalProperties": false
                     },
-                    "maxItems": 20,
-                    "description": "Additional headers the proxy attaches to every request to this service, on top of the credential. Send the full list. A header you leave out is deleted. Send a header's `id` to change it in place and keep its stored value. Without an `id`, a header is matched by name."
+                    "required": [
+                      "type",
+                      "name",
+                      "hostPattern",
+                      "credential"
+                    ],
+                    "additionalProperties": false,
+                    "title": "HTTP service"
                   },
-                  "substitutions": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "placeholder": {
-                          "type": "string",
-                          "minLength": 1,
-                          "maxLength": 255,
-                          "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                          "description": "The fake value your agent already sends. The proxy replaces it with the real secret. Matched as a plain string, so a distinctive placeholder is worth choosing. Can't contain `{{` or `}}`."
-                        },
-                        "surfaces": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "enum": [
-                              "path",
-                              "query",
-                              "header",
-                              "body"
-                            ]
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "mcp"
+                        ],
+                        "description": "The service type: `http` for an HTTP API, or `mcp` for a remote MCP server. Can't be changed after the service is created."
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "description": "The name of the service."
+                      },
+                      "serverUrl": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048,
+                        "description": "The MCP server's URL, such as `https://mcp.example.com/mcp`. Must use `https`, with no username, password, query string or fragment."
+                      },
+                      "transport": {
+                        "type": "string",
+                        "enum": [
+                          "streamable-http",
+                          "sse"
+                        ],
+                        "description": "How the agent talks to the MCP server: `streamable-http`, or `sse` for the legacy HTTP+SSE transport."
+                      },
+                      "credential": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "bearer"
+                                ]
+                              },
+                              "headerName": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
+                                "description": "The header the credential is written to. Defaults to `Authorization`."
+                              },
+                              "headerPrefix": {
+                                "type": "string",
+                                "maxLength": 64,
+                                "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
+                              },
+                              "value": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 8192,
+                                "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                "description": "The secret. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Never returned once saved."
+                              },
+                              "memberProvidedFields": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "credential-value"
+                                  ]
+                                },
+                                "maxItems": 1,
+                                "description": "Leave the token to each member: send `credential-value` here and no `value`. Every member sets their own, and a session uses the token of whoever it belongs to. Omit on update to keep the current setting; send an empty list to set the token yourself again, which then needs a `value`. Changing this clears every member's saved values for the service."
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Bearer"
+                          }
+                        ],
+                        "description": "The credential the proxy attaches to requests to the MCP server, a bearer token. To use OAuth instead, connect the service in the Infisical UI."
+                      },
+                      "customHeaders": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 128,
+                              "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
+                              "description": "The name of the header, which must not be the credential's own header."
+                            },
+                            "prefix": {
+                              "type": "string",
+                              "maxLength": 64,
+                              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                              "description": "Written before the header value, separated by one space. Leave empty to send the value alone. Can't contain `{{` or `}}`."
+                            },
+                            "value": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 8192,
+                              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                              "description": "The header value. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Never returned once saved."
+                            }
                           },
-                          "minItems": 1,
-                          "maxItems": 4,
-                          "description": "Where in the request to look for the placeholder: path, query, header or body."
+                          "required": [
+                            "name",
+                            "value"
+                          ],
+                          "additionalProperties": false
                         },
-                        "value": {
-                          "type": "string",
-                          "minLength": 1,
-                          "maxLength": 8192,
-                          "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                          "description": "The real value the placeholder is replaced with. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Never returned once saved."
-                        }
-                      },
-                      "required": [
-                        "placeholder",
-                        "surfaces",
-                        "value"
-                      ],
-                      "additionalProperties": false
+                        "maxItems": 20,
+                        "description": "Additional headers the proxy attaches to every request to this service, on top of the credential. Send the full list. A header you leave out is deleted. Send a header's `id` to change it in place and keep its stored value. Without an `id`, a header is matched by name."
+                      }
                     },
-                    "maxItems": 20,
-                    "description": "Placeholders the proxy swaps for a real secret before forwarding. Send the full list. A substitution you leave out is deleted. Send a substitution's `id` to change it in place and keep its stored value. Without an `id`, it is matched by its placeholder."
+                    "required": [
+                      "type",
+                      "name",
+                      "serverUrl",
+                      "transport",
+                      "credential"
+                    ],
+                    "additionalProperties": false,
+                    "title": "MCP service"
                   }
-                },
-                "required": [
-                  "name",
-                  "hostPattern",
-                  "credential"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -61790,6 +62026,28 @@
                         "name": {
                           "type": "string",
                           "description": "The name of the service."
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "http",
+                            "mcp"
+                          ],
+                          "description": "The service type: `http` for an HTTP API, or `mcp` for a remote MCP server. Can't be changed after the service is created."
+                        },
+                        "serverUrl": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "The MCP server's full URL. Null for an `http` service."
+                        },
+                        "transport": {
+                          "type": "string",
+                          "enum": [
+                            "streamable-http",
+                            "sse"
+                          ],
+                          "nullable": true,
+                          "description": "How the agent talks to the MCP server: `streamable-http`, or `sse` for the legacy HTTP+SSE transport. Null for an `http` service."
                         },
                         "hostPattern": {
                           "type": "string",
@@ -61902,6 +62160,68 @@
                               ],
                               "additionalProperties": false,
                               "title": "Pass-through"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "oauth"
+                                  ]
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "connected",
+                                    "needs-reauthorization",
+                                    "needs-additional-scopes"
+                                  ],
+                                  "description": "Whether the OAuth connection works: `connected`, `needs-reauthorization` (the tokens can no longer be refreshed), or `needs-additional-scopes` (the MCP server asked for scopes the connection lacks)."
+                                },
+                                "issuer": {
+                                  "type": "string",
+                                  "description": "The OAuth authorization server that issued the tokens."
+                                },
+                                "grantedScopes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "description": "The scopes the authorization server granted."
+                                },
+                                "requiredScopes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "description": "Scopes the MCP server asked for that the connection lacks. Reauthorize to request them."
+                                },
+                                "expiresAt": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "When the current access token expires, or null if the server didn't say. Not returned to Agent Vault members."
+                                },
+                                "authorizedAt": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "When the connection was last authorized. Not returned to Agent Vault members."
+                                },
+                                "lastError": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The last refresh failure, if any. Never contains a token. Not returned to Agent Vault members."
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "status",
+                                "issuer",
+                                "grantedScopes",
+                                "requiredScopes"
+                              ],
+                              "additionalProperties": false,
+                              "title": "OAuth"
                             }
                           ]
                         },
@@ -62090,6 +62410,9 @@
                         "id",
                         "accessBundleId",
                         "name",
+                        "type",
+                        "serverUrl",
+                        "transport",
                         "hostPattern",
                         "allowedMethods",
                         "allowedPathPrefixes",
@@ -62329,245 +62652,388 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64,
-                    "description": "The name of the service."
-                  },
-                  "hostPattern": {
-                    "type": "string",
-                    "maxLength": 1024,
-                    "description": "A comma-separated set of hosts this service covers, each optionally with a port (defaults to `443`). A leading `*.` wildcard matches exactly one label. Paths are not supported."
-                  },
-                  "allowedMethods": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "enum": [
-                        "GET",
-                        "HEAD",
-                        "POST",
-                        "PUT",
-                        "PATCH",
-                        "DELETE",
-                        "OPTIONS"
-                      ]
-                    },
-                    "minItems": 1,
-                    "maxItems": 7,
-                    "nullable": true,
-                    "description": "The HTTP methods this service allows. Null allows every method. Anything else is refused by the proxy with a 403."
-                  },
-                  "allowedPathPrefixes": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "minItems": 1,
-                    "maxItems": 20,
-                    "nullable": true,
-                    "description": "The path prefixes this service allows, matched on whole segments, so `/repos` covers `/repos/octo` but not `/repositories`. `null` allows every path. A path-restricted service also refuses any request whose path would have to be normalised to judge."
-                  },
-                  "credential": {
-                    "anyOf": [
-                      {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "bearer"
-                            ]
-                          },
-                          "headerName": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 128,
-                            "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
-                            "description": "The header the credential is written to. Defaults to `Authorization`."
-                          },
-                          "headerPrefix": {
-                            "type": "string",
-                            "maxLength": 64,
-                            "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                            "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
-                          },
-                          "value": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 8192,
-                            "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                            "description": "The secret. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Omit to keep the stored secret."
-                          },
-                          "memberProvidedFields": {
-                            "type": "array",
-                            "items": {
-                              "type": "string",
-                              "enum": [
-                                "credential-value"
-                              ]
-                            },
-                            "maxItems": 1,
-                            "description": "Leave the token to each member: send `credential-value` here and no `value`. Every member sets their own, and a session uses the token of whoever it belongs to. Omit on update to keep the current setting; send an empty list to set the token yourself again, which then needs a `value`. Changing this clears every member's saved values for the service."
-                          }
-                        },
-                        "required": [
-                          "type"
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "http"
                         ],
-                        "additionalProperties": false,
-                        "title": "Bearer"
+                        "description": "The service's type, `http` or `mcp`. Must match the type the service was created with."
                       },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "basic"
-                            ]
-                          },
-                          "username": {
-                            "type": "string",
-                            "maxLength": 256,
-                            "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                            "description": "The username half of the basic credential. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Omit to keep the stored username; send an empty string to remove it, which requires a password."
-                          },
-                          "password": {
-                            "type": "string",
-                            "maxLength": 8192,
-                            "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                            "description": "The password half of the basic credential. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Omit to keep the stored password; send an empty string to remove it, which requires a username."
-                          },
-                          "memberProvidedFields": {
-                            "type": "array",
-                            "items": {
-                              "type": "string",
-                              "enum": [
-                                "credential-value",
-                                "credential-username"
-                              ]
-                            },
-                            "maxItems": 2,
-                            "description": "The halves of the basic credential each member sets for themselves: `credential-username`, `credential-value` (the password) or both. Send no value for a half listed here. A session uses the values of whoever it belongs to. Omit on update to keep the current setting. Adding a half keeps what members saved, and taking one back deletes only that half's values. Changing the credential type deletes every member's values for the service."
-                          }
-                        },
-                        "required": [
-                          "type"
-                        ],
-                        "additionalProperties": false,
-                        "title": "Basic Auth"
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "description": "The name of the service."
                       },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "passthrough"
-                            ]
-                          }
+                      "hostPattern": {
+                        "type": "string",
+                        "maxLength": 1024,
+                        "description": "A comma-separated set of hosts this service covers, each optionally with a port (defaults to `443`). A leading `*.` wildcard matches exactly one label. Paths are not supported."
+                      },
+                      "allowedMethods": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "GET",
+                            "HEAD",
+                            "POST",
+                            "PUT",
+                            "PATCH",
+                            "DELETE",
+                            "OPTIONS"
+                          ]
                         },
-                        "required": [
-                          "type"
-                        ],
-                        "additionalProperties": false,
-                        "title": "Pass-through"
+                        "minItems": 1,
+                        "maxItems": 7,
+                        "nullable": true,
+                        "description": "The HTTP methods this service allows. Null allows every method. Anything else is refused by the proxy with a 403."
+                      },
+                      "allowedPathPrefixes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "minItems": 1,
+                        "maxItems": 20,
+                        "nullable": true,
+                        "description": "The path prefixes this service allows, matched on whole segments, so `/repos` covers `/repos/octo` but not `/repositories`. `null` allows every path. A path-restricted service also refuses any request whose path would have to be normalised to judge."
+                      },
+                      "credential": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "bearer"
+                                ]
+                              },
+                              "headerName": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
+                                "description": "The header the credential is written to. Defaults to `Authorization`."
+                              },
+                              "headerPrefix": {
+                                "type": "string",
+                                "maxLength": 64,
+                                "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
+                              },
+                              "value": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 8192,
+                                "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                "description": "The secret. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Omit to keep the stored secret."
+                              },
+                              "memberProvidedFields": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "credential-value"
+                                  ]
+                                },
+                                "maxItems": 1,
+                                "description": "Leave the token to each member: send `credential-value` here and no `value`. Every member sets their own, and a session uses the token of whoever it belongs to. Omit on update to keep the current setting; send an empty list to set the token yourself again, which then needs a `value`. Changing this clears every member's saved values for the service."
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Bearer"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "basic"
+                                ]
+                              },
+                              "username": {
+                                "type": "string",
+                                "maxLength": 256,
+                                "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                "description": "The username half of the basic credential. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Omit to keep the stored username; send an empty string to remove it, which requires a password."
+                              },
+                              "password": {
+                                "type": "string",
+                                "maxLength": 8192,
+                                "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                "description": "The password half of the basic credential. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Omit to keep the stored password; send an empty string to remove it, which requires a username."
+                              },
+                              "memberProvidedFields": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "credential-value",
+                                    "credential-username"
+                                  ]
+                                },
+                                "maxItems": 2,
+                                "description": "The halves of the basic credential each member sets for themselves: `credential-username`, `credential-value` (the password) or both. Send no value for a half listed here. A session uses the values of whoever it belongs to. Omit on update to keep the current setting. Adding a half keeps what members saved, and taking one back deletes only that half's values. Changing the credential type deletes every member's values for the service."
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Basic Auth"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "passthrough"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Pass-through"
+                          }
+                        ]
+                      },
+                      "customHeaders": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "The ID of the custom header. Send it to change that header in place. Omit it to match by name."
+                            },
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 128,
+                              "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
+                              "description": "The name of the header, which must not be the credential's own header."
+                            },
+                            "prefix": {
+                              "type": "string",
+                              "maxLength": 64,
+                              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                              "description": "Written before the header value, separated by one space. Can't contain `{{` or `}}`. Unlike the value, an omitted prefix is cleared rather than kept, since the stored prefix is returned and can be resent."
+                            },
+                            "value": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 8192,
+                              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                              "description": "The header value. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Omit to keep the value already stored for this header."
+                            }
+                          },
+                          "required": [
+                            "name"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "maxItems": 20,
+                        "description": "Additional headers the proxy attaches to every request to this service, on top of the credential. Send the full list. A header you leave out is deleted. Send a header's `id` to change it in place and keep its stored value. Without an `id`, a header is matched by name."
+                      },
+                      "substitutions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "The ID of the substitution. Send it to change that substitution in place. Omit it to match by placeholder."
+                            },
+                            "placeholder": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 255,
+                              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                              "description": "The fake value your agent already sends. The proxy replaces it with the real secret. Matched as a plain string, so a distinctive placeholder is worth choosing. Can't contain `{{` or `}}`."
+                            },
+                            "surfaces": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "path",
+                                  "query",
+                                  "header",
+                                  "body"
+                                ]
+                              },
+                              "minItems": 1,
+                              "maxItems": 4,
+                              "description": "Where in the request to look for the placeholder: path, query, header or body."
+                            },
+                            "value": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 8192,
+                              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                              "description": "The real value the placeholder is replaced with. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Omit to keep the value already stored."
+                            }
+                          },
+                          "required": [
+                            "placeholder",
+                            "surfaces"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "maxItems": 20,
+                        "description": "Placeholders the proxy swaps for a real secret before forwarding. Send the full list. A substitution you leave out is deleted. Send a substitution's `id` to change it in place and keep its stored value. Without an `id`, it is matched by its placeholder."
                       }
-                    ]
-                  },
-                  "customHeaders": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "format": "uuid",
-                          "description": "The ID of the custom header. Send it to change that header in place. Omit it to match by name."
-                        },
-                        "name": {
-                          "type": "string",
-                          "minLength": 1,
-                          "maxLength": 128,
-                          "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
-                          "description": "The name of the header, which must not be the credential's own header."
-                        },
-                        "prefix": {
-                          "type": "string",
-                          "maxLength": 64,
-                          "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                          "description": "Written before the header value, separated by one space. Can't contain `{{` or `}}`. Unlike the value, an omitted prefix is cleared rather than kept, since the stored prefix is returned and can be resent."
-                        },
-                        "value": {
-                          "type": "string",
-                          "minLength": 1,
-                          "maxLength": 8192,
-                          "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                          "description": "The header value. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Omit to keep the value already stored for this header."
-                        }
-                      },
-                      "required": [
-                        "name"
-                      ],
-                      "additionalProperties": false
                     },
-                    "maxItems": 20,
-                    "description": "Additional headers the proxy attaches to every request to this service, on top of the credential. Send the full list. A header you leave out is deleted. Send a header's `id` to change it in place and keep its stored value. Without an `id`, a header is matched by name."
+                    "required": [
+                      "type"
+                    ],
+                    "additionalProperties": false,
+                    "title": "HTTP service"
                   },
-                  "substitutions": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "format": "uuid",
-                          "description": "The ID of the substitution. Send it to change that substitution in place. Omit it to match by placeholder."
-                        },
-                        "placeholder": {
-                          "type": "string",
-                          "minLength": 1,
-                          "maxLength": 255,
-                          "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                          "description": "The fake value your agent already sends. The proxy replaces it with the real secret. Matched as a plain string, so a distinctive placeholder is worth choosing. Can't contain `{{` or `}}`."
-                        },
-                        "surfaces": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "enum": [
-                              "path",
-                              "query",
-                              "header",
-                              "body"
-                            ]
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "mcp"
+                        ],
+                        "description": "The service's type, `http` or `mcp`. Must match the type the service was created with."
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "description": "The name of the service."
+                      },
+                      "serverUrl": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048,
+                        "description": "The MCP server's URL, such as `https://mcp.example.com/mcp`. Must use `https`, with no username, password, query string or fragment."
+                      },
+                      "transport": {
+                        "type": "string",
+                        "enum": [
+                          "streamable-http",
+                          "sse"
+                        ],
+                        "description": "How the agent talks to the MCP server: `streamable-http`, or `sse` for the legacy HTTP+SSE transport."
+                      },
+                      "credential": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "bearer"
+                                ]
+                              },
+                              "headerName": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
+                                "description": "The header the credential is written to. Defaults to `Authorization`."
+                              },
+                              "headerPrefix": {
+                                "type": "string",
+                                "maxLength": 64,
+                                "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
+                              },
+                              "value": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 8192,
+                                "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                "description": "The secret. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Omit to keep the stored secret."
+                              },
+                              "memberProvidedFields": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "credential-value"
+                                  ]
+                                },
+                                "maxItems": 1,
+                                "description": "Leave the token to each member: send `credential-value` here and no `value`. Every member sets their own, and a session uses the token of whoever it belongs to. Omit on update to keep the current setting; send an empty list to set the token yourself again, which then needs a `value`. Changing this clears every member's saved values for the service."
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Bearer"
+                          }
+                        ],
+                        "description": "The credential the proxy attaches to requests to the MCP server, a bearer token. To use OAuth instead, connect the service in the Infisical UI."
+                      },
+                      "customHeaders": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "The ID of the custom header. Send it to change that header in place. Omit it to match by name."
+                            },
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 128,
+                              "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
+                              "description": "The name of the header, which must not be the credential's own header."
+                            },
+                            "prefix": {
+                              "type": "string",
+                              "maxLength": 64,
+                              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                              "description": "Written before the header value, separated by one space. Can't contain `{{` or `}}`. Unlike the value, an omitted prefix is cleared rather than kept, since the stored prefix is returned and can be resent."
+                            },
+                            "value": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 8192,
+                              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                              "description": "The header value. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Omit to keep the value already stored for this header."
+                            }
                           },
-                          "minItems": 1,
-                          "maxItems": 4,
-                          "description": "Where in the request to look for the placeholder: path, query, header or body."
+                          "required": [
+                            "name"
+                          ],
+                          "additionalProperties": false
                         },
-                        "value": {
-                          "type": "string",
-                          "minLength": 1,
-                          "maxLength": 8192,
-                          "pattern": "^[^\\x00-\\x1f\\x7f]*$",
-                          "description": "The real value the placeholder is replaced with. Can use up to 3 references to Agent Vault's variables, written as `{{KEY}}`. A reference that repeats counts each time. Omit to keep the value already stored."
-                        }
-                      },
-                      "required": [
-                        "placeholder",
-                        "surfaces"
-                      ],
-                      "additionalProperties": false
+                        "maxItems": 20,
+                        "description": "Additional headers the proxy attaches to every request to this service, on top of the credential. Send the full list. A header you leave out is deleted. Send a header's `id` to change it in place and keep its stored value. Without an `id`, a header is matched by name."
+                      }
                     },
-                    "maxItems": 20,
-                    "description": "Placeholders the proxy swaps for a real secret before forwarding. Send the full list. A substitution you leave out is deleted. Send a substitution's `id` to change it in place and keep its stored value. Without an `id`, it is matched by its placeholder."
+                    "required": [
+                      "type"
+                    ],
+                    "additionalProperties": false,
+                    "title": "MCP service"
                   }
-                },
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -62618,6 +63084,28 @@
                         "name": {
                           "type": "string",
                           "description": "The name of the service."
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "http",
+                            "mcp"
+                          ],
+                          "description": "The service type: `http` for an HTTP API, or `mcp` for a remote MCP server. Can't be changed after the service is created."
+                        },
+                        "serverUrl": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "The MCP server's full URL. Null for an `http` service."
+                        },
+                        "transport": {
+                          "type": "string",
+                          "enum": [
+                            "streamable-http",
+                            "sse"
+                          ],
+                          "nullable": true,
+                          "description": "How the agent talks to the MCP server: `streamable-http`, or `sse` for the legacy HTTP+SSE transport. Null for an `http` service."
                         },
                         "hostPattern": {
                           "type": "string",
@@ -62730,6 +63218,68 @@
                               ],
                               "additionalProperties": false,
                               "title": "Pass-through"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "oauth"
+                                  ]
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "connected",
+                                    "needs-reauthorization",
+                                    "needs-additional-scopes"
+                                  ],
+                                  "description": "Whether the OAuth connection works: `connected`, `needs-reauthorization` (the tokens can no longer be refreshed), or `needs-additional-scopes` (the MCP server asked for scopes the connection lacks)."
+                                },
+                                "issuer": {
+                                  "type": "string",
+                                  "description": "The OAuth authorization server that issued the tokens."
+                                },
+                                "grantedScopes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "description": "The scopes the authorization server granted."
+                                },
+                                "requiredScopes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "description": "Scopes the MCP server asked for that the connection lacks. Reauthorize to request them."
+                                },
+                                "expiresAt": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "When the current access token expires, or null if the server didn't say. Not returned to Agent Vault members."
+                                },
+                                "authorizedAt": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "When the connection was last authorized. Not returned to Agent Vault members."
+                                },
+                                "lastError": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The last refresh failure, if any. Never contains a token. Not returned to Agent Vault members."
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "status",
+                                "issuer",
+                                "grantedScopes",
+                                "requiredScopes"
+                              ],
+                              "additionalProperties": false,
+                              "title": "OAuth"
                             }
                           ]
                         },
@@ -62918,6 +63468,9 @@
                         "id",
                         "accessBundleId",
                         "name",
+                        "type",
+                        "serverUrl",
+                        "transport",
                         "hostPattern",
                         "allowedMethods",
                         "allowedPathPrefixes",
@@ -63197,6 +63750,28 @@
                           "type": "string",
                           "description": "The name of the service."
                         },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "http",
+                            "mcp"
+                          ],
+                          "description": "The service type: `http` for an HTTP API, or `mcp` for a remote MCP server. Can't be changed after the service is created."
+                        },
+                        "serverUrl": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "The MCP server's full URL. Null for an `http` service."
+                        },
+                        "transport": {
+                          "type": "string",
+                          "enum": [
+                            "streamable-http",
+                            "sse"
+                          ],
+                          "nullable": true,
+                          "description": "How the agent talks to the MCP server: `streamable-http`, or `sse` for the legacy HTTP+SSE transport. Null for an `http` service."
+                        },
                         "hostPattern": {
                           "type": "string",
                           "description": "A comma-separated set of hosts this service covers, each optionally with a port (defaults to `443`). A leading `*.` wildcard matches exactly one label. Paths are not supported."
@@ -63308,6 +63883,68 @@
                               ],
                               "additionalProperties": false,
                               "title": "Pass-through"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "oauth"
+                                  ]
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "connected",
+                                    "needs-reauthorization",
+                                    "needs-additional-scopes"
+                                  ],
+                                  "description": "Whether the OAuth connection works: `connected`, `needs-reauthorization` (the tokens can no longer be refreshed), or `needs-additional-scopes` (the MCP server asked for scopes the connection lacks)."
+                                },
+                                "issuer": {
+                                  "type": "string",
+                                  "description": "The OAuth authorization server that issued the tokens."
+                                },
+                                "grantedScopes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "description": "The scopes the authorization server granted."
+                                },
+                                "requiredScopes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "description": "Scopes the MCP server asked for that the connection lacks. Reauthorize to request them."
+                                },
+                                "expiresAt": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "When the current access token expires, or null if the server didn't say. Not returned to Agent Vault members."
+                                },
+                                "authorizedAt": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "When the connection was last authorized. Not returned to Agent Vault members."
+                                },
+                                "lastError": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The last refresh failure, if any. Never contains a token. Not returned to Agent Vault members."
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "status",
+                                "issuer",
+                                "grantedScopes",
+                                "requiredScopes"
+                              ],
+                              "additionalProperties": false,
+                              "title": "OAuth"
                             }
                           ]
                         },
@@ -63496,6 +64133,9 @@
                         "id",
                         "accessBundleId",
                         "name",
+                        "type",
+                        "serverUrl",
+                        "transport",
                         "hostPattern",
                         "allowedMethods",
                         "allowedPathPrefixes",
@@ -63802,7 +64442,8 @@
                     "enum": [
                       "bearer",
                       "basic",
-                      "passthrough"
+                      "passthrough",
+                      "oauth"
                     ],
                     "description": "The credential type you expect the service to have. If it no longer matches, the request fails with a 409."
                   }
@@ -67956,7 +68597,7 @@
             "in": "query",
             "name": "search",
             "required": false,
-            "description": "Match sessions by actor name, actor email or access bundle name."
+            "description": "Match sessions by label, actor name, actor email or access bundle name."
           },
           {
             "schema": {
@@ -67999,6 +68640,11 @@
                             "type": "string",
                             "format": "uuid",
                             "description": "The ID of the session."
+                          },
+                          "label": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "A short description of what the session is for, such as `nightly deploy` or `support ticket triage`. Up to 128 characters, without line breaks, tabs, or invisible characters. Shown wherever the session is listed."
                           },
                           "actor": {
                             "anyOf": [
@@ -68131,6 +68777,7 @@
                         },
                         "required": [
                           "id",
+                          "label",
                           "actor",
                           "status",
                           "expiresAt",
@@ -68387,6 +69034,12 @@
                     "type": "string",
                     "default": "7d",
                     "description": "How long the session lasts: a duration such as 30m, 8h or 7d (at least 1m), or never. Defaults to 7d."
+                  },
+                  "label": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "nullable": true,
+                    "description": "A short description of what the session is for, such as `nightly deploy` or `support ticket triage`. Up to 128 characters, without line breaks, tabs, or invisible characters. Shown wherever the session is listed."
                   }
                 },
                 "required": [
@@ -68412,6 +69065,11 @@
                           "type": "string",
                           "format": "uuid",
                           "description": "The ID of the session."
+                        },
+                        "label": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "A short description of what the session is for, such as `nightly deploy` or `support ticket triage`. Up to 128 characters, without line breaks, tabs, or invisible characters. Shown wherever the session is listed."
                         },
                         "token": {
                           "type": "string",
@@ -68455,6 +69113,7 @@
                       },
                       "required": [
                         "id",
+                        "label",
                         "token",
                         "expiresAt",
                         "createdAt",
@@ -68712,6 +69371,11 @@
                           "format": "uuid",
                           "description": "The ID of the session."
                         },
+                        "label": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "A short description of what the session is for, such as `nightly deploy` or `support ticket triage`. Up to 128 characters, without line breaks, tabs, or invisible characters. Shown wherever the session is listed."
+                        },
                         "actor": {
                           "anyOf": [
                             {
@@ -68843,6 +69507,423 @@
                       },
                       "required": [
                         "id",
+                        "label",
+                        "actor",
+                        "status",
+                        "expiresAt",
+                        "revokedAt",
+                        "createdAt",
+                        "accessBundles"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "session"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateAgentVaultSession",
+        "tags": [
+          "Agent Vault Sessions"
+        ],
+        "description": "Update the label of an Agent Vault session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "nullable": true,
+                    "description": "The new label for the session, up to 128 characters, without line breaks, tabs, or invisible characters. Send null or an empty string to remove the label. You can't change the label once the session's owner is deleted."
+                  }
+                },
+                "required": [
+                  "label"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "sessionId",
+            "required": true,
+            "description": "The ID of the session."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "session": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "The ID of the session."
+                        },
+                        "label": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "A short description of what the session is for, such as `nightly deploy` or `support ticket triage`. Up to 128 characters, without line breaks, tabs, or invisible characters. Shown wherever the session is listed."
+                        },
+                        "actor": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "user"
+                                  ],
+                                  "description": "Whether the session belongs to a user or a machine identity."
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "nullable": true,
+                                  "description": "The ID of the user or machine identity the session belongs to, or null if it was deleted."
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username of the user. Once the user is deleted, the email recorded when the session was created."
+                                },
+                                "email": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The email address of the user. Once the user is deleted, the email recorded when the session was created."
+                                },
+                                "firstName": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The first name of the user. Once the user is deleted, the full name recorded when the session was created."
+                                },
+                                "lastName": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The last name of the user, or null once the user is deleted."
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "id",
+                                "username",
+                                "email",
+                                "firstName",
+                                "lastName"
+                              ],
+                              "additionalProperties": false,
+                              "title": "User"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "machineIdentity"
+                                  ],
+                                  "description": "Whether the session belongs to a user or a machine identity."
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "nullable": true,
+                                  "description": "The ID of the user or machine identity the session belongs to, or null if it was deleted."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the machine identity. Once the machine identity is deleted, the name recorded when the session was created."
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "id",
+                                "name"
+                              ],
+                              "additionalProperties": false,
+                              "title": "Machine identity"
+                            }
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "active",
+                            "revoked",
+                            "expired"
+                          ]
+                        },
+                        "expiresAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true,
+                          "description": "When the session expires, or null when it never does."
+                        },
+                        "revokedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "accessBundles": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "nullable": true
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "position": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "position"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "label",
                         "actor",
                         "status",
                         "expiresAt",
@@ -69102,6 +70183,11 @@
                           "format": "uuid",
                           "description": "The ID of the session."
                         },
+                        "label": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "A short description of what the session is for, such as `nightly deploy` or `support ticket triage`. Up to 128 characters, without line breaks, tabs, or invisible characters. Shown wherever the session is listed."
+                        },
                         "actor": {
                           "anyOf": [
                             {
@@ -69208,6 +70294,7 @@
                       },
                       "required": [
                         "id",
+                        "label",
                         "actor",
                         "status",
                         "expiresAt",
@@ -105528,7 +106615,7 @@
                     },
                     {
                       "type": "string",
-                      "maxLength": 17803
+                      "maxLength": 17830
                     }
                   ]
                 },
@@ -106101,6 +107188,7 @@
                           "agent-vault-access-bundle-member-add",
                           "agent-vault-access-bundle-member-remove",
                           "agent-vault-session-mint",
+                          "agent-vault-session-update",
                           "agent-vault-session-revoke",
                           "agent-vault-proxy-register",
                           "agent-vault-proxy-token-reissue",
@@ -106246,7 +107334,7 @@
                           "update-audit-log-settings"
                         ]
                       },
-                      "maxItems": 702
+                      "maxItems": 703
                     }
                   ]
                 }
@@ -996045,6 +997133,7 @@
                                   "enum": [
                                     "read",
                                     "create",
+                                    "edit",
                                     "revoke"
                                   ]
                                 },
@@ -996055,6 +997144,7 @@
                                     "enum": [
                                       "read",
                                       "create",
+                                      "edit",
                                       "revoke"
                                     ]
                                   },
@@ -1001540,6 +1002630,7 @@
                                   "enum": [
                                     "read",
                                     "create",
+                                    "edit",
                                     "revoke"
                                   ]
                                 },
@@ -1001550,6 +1002641,7 @@
                                     "enum": [
                                       "read",
                                       "create",
+                                      "edit",
                                       "revoke"
                                     ]
                                   },
@@ -1007424,6 +1008516,7 @@
                                   "enum": [
                                     "read",
                                     "create",
+                                    "edit",
                                     "revoke"
                                   ]
                                 },
@@ -1007434,6 +1008527,7 @@
                                     "enum": [
                                       "read",
                                       "create",
+                                      "edit",
                                       "revoke"
                                     ]
                                   },
@@ -1012984,6 +1014078,7 @@
                                   "enum": [
                                     "read",
                                     "create",
+                                    "edit",
                                     "revoke"
                                   ]
                                 },
@@ -1012994,6 +1014089,7 @@
                                     "enum": [
                                       "read",
                                       "create",
+                                      "edit",
                                       "revoke"
                                     ]
                                   },
@@ -1023909,6 +1025005,7 @@
                                         "confirmation_token_client_write",
                                         "confirmation_token_read",
                                         "connected_account_read",
+                                        "connected_account_write",
                                         "coupon_read",
                                         "coupon_write",
                                         "credit_note_read",
@@ -1024037,7 +1025134,7 @@
                                       ]
                                     },
                                     "minItems": 1,
-                                    "maxItems": 158,
+                                    "maxItems": 159,
                                     "description": "The permissions granted to the generated Stripe API key. Stripe has no wildcard permission, so this is the full list of what the key may do."
                                   }
                                 },
@@ -1159742,6 +1160839,7 @@
                                     "confirmation_token_client_write",
                                     "confirmation_token_read",
                                     "connected_account_read",
+                                    "connected_account_write",
                                     "coupon_read",
                                     "coupon_write",
                                     "credit_note_read",
@@ -1159870,7 +1160968,7 @@
                                   ]
                                 },
                                 "minItems": 1,
-                                "maxItems": 158,
+                                "maxItems": 159,
                                 "description": "The permissions granted to the generated Stripe API key. Stripe has no wildcard permission, so this is the full list of what the key may do."
                               }
                             },
@@ -1160255,6 +1161353,7 @@
                             "confirmation_token_client_write",
                             "confirmation_token_read",
                             "connected_account_read",
+                            "connected_account_write",
                             "coupon_read",
                             "coupon_write",
                             "credit_note_read",
@@ -1160383,7 +1161482,7 @@
                           ]
                         },
                         "minItems": 1,
-                        "maxItems": 158,
+                        "maxItems": 159,
                         "description": "The permissions granted to the generated Stripe API key. Stripe has no wildcard permission, so this is the full list of what the key may do."
                       }
                     },
@@ -1160636,6 +1161735,7 @@
                                   "confirmation_token_client_write",
                                   "confirmation_token_read",
                                   "connected_account_read",
+                                  "connected_account_write",
                                   "coupon_read",
                                   "coupon_write",
                                   "credit_note_read",
@@ -1160764,7 +1161864,7 @@
                                 ]
                               },
                               "minItems": 1,
-                              "maxItems": 158,
+                              "maxItems": 159,
                               "description": "The permissions granted to the generated Stripe API key. Stripe has no wildcard permission, so this is the full list of what the key may do."
                             }
                           },
@@ -1161258,6 +1162358,7 @@
                                   "confirmation_token_client_write",
                                   "confirmation_token_read",
                                   "connected_account_read",
+                                  "connected_account_write",
                                   "coupon_read",
                                   "coupon_write",
                                   "credit_note_read",
@@ -1161386,7 +1162487,7 @@
                                 ]
                               },
                               "minItems": 1,
-                              "maxItems": 158,
+                              "maxItems": 159,
                               "description": "The permissions granted to the generated Stripe API key. Stripe has no wildcard permission, so this is the full list of what the key may do."
                             }
                           },
@@ -1161748,6 +1162849,7 @@
                             "confirmation_token_client_write",
                             "confirmation_token_read",
                             "connected_account_read",
+                            "connected_account_write",
                             "coupon_read",
                             "coupon_write",
                             "credit_note_read",
@@ -1161876,7 +1162978,7 @@
                           ]
                         },
                         "minItems": 1,
-                        "maxItems": 158,
+                        "maxItems": 159,
                         "description": "The permissions granted to the generated Stripe API key. Stripe has no wildcard permission, so this is the full list of what the key may do."
                       }
                     },
@@ -1162131,6 +1163233,7 @@
                                   "confirmation_token_client_write",
                                   "confirmation_token_read",
                                   "connected_account_read",
+                                  "connected_account_write",
                                   "coupon_read",
                                   "coupon_write",
                                   "credit_note_read",
@@ -1162259,7 +1163362,7 @@
                                 ]
                               },
                               "minItems": 1,
-                              "maxItems": 158,
+                              "maxItems": 159,
                               "description": "The permissions granted to the generated Stripe API key. Stripe has no wildcard permission, so this is the full list of what the key may do."
                             }
                           },
@@ -1162777,6 +1163880,7 @@
                                   "confirmation_token_client_write",
                                   "confirmation_token_read",
                                   "connected_account_read",
+                                  "connected_account_write",
                                   "coupon_read",
                                   "coupon_write",
                                   "credit_note_read",
@@ -1162905,7 +1164009,7 @@
                                 ]
                               },
                               "minItems": 1,
-                              "maxItems": 158,
+                              "maxItems": 159,
                               "description": "The permissions granted to the generated Stripe API key. Stripe has no wildcard permission, so this is the full list of what the key may do."
                             }
                           },
@@ -1163429,6 +1164533,7 @@
                                   "confirmation_token_client_write",
                                   "confirmation_token_read",
                                   "connected_account_read",
+                                  "connected_account_write",
                                   "coupon_read",
                                   "coupon_write",
                                   "credit_note_read",
@@ -1163557,7 +1164662,7 @@
                                 ]
                               },
                               "minItems": 1,
-                              "maxItems": 158,
+                              "maxItems": 159,
                               "description": "The permissions granted to the generated Stripe API key. Stripe has no wildcard permission, so this is the full list of what the key may do."
                             }
                           },
@@ -1164359,6 +1165464,7 @@
                                   "confirmation_token_client_write",
                                   "confirmation_token_read",
                                   "connected_account_read",
+                                  "connected_account_write",
                                   "coupon_read",
                                   "coupon_write",
                                   "credit_note_read",
@@ -1164487,7 +1165593,7 @@
                                 ]
                               },
                               "minItems": 1,
-                              "maxItems": 158,
+                              "maxItems": 159,
                               "description": "The permissions granted to the generated Stripe API key. Stripe has no wildcard permission, so this is the full list of what the key may do."
                             }
                           },
@@ -1164981,6 +1166087,7 @@
                                   "confirmation_token_client_write",
                                   "confirmation_token_read",
                                   "connected_account_read",
+                                  "connected_account_write",
                                   "coupon_read",
                                   "coupon_write",
                                   "credit_note_read",
@@ -1165109,7 +1166216,7 @@
                                 ]
                               },
                               "minItems": 1,
-                              "maxItems": 158,
+                              "maxItems": 159,
                               "description": "The permissions granted to the generated Stripe API key. Stripe has no wildcard permission, so this is the full list of what the key may do."
                             }
                           },
