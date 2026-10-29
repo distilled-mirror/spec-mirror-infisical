@@ -30399,6 +30399,7 @@
                                     "stripe",
                                     "keeper",
                                     "hpe-ilo",
+                                    "servicenow",
                                     "s3-compatible",
                                     "jira"
                                   ]
@@ -30850,6 +30851,7 @@
                               "stripe",
                               "keeper",
                               "hpe-ilo",
+                              "servicenow",
                               "s3-compatible",
                               "jira"
                             ]
@@ -129822,6 +129824,7 @@
                   "name": {
                     "type": "string",
                     "minLength": 1,
+                    "maxLength": 255,
                     "description": "The name of the identity to create."
                   },
                   "hasDeleteProtection": {
@@ -130612,6 +130615,7 @@
                   "name": {
                     "type": "string",
                     "minLength": 1,
+                    "maxLength": 255,
                     "description": "The new name of the identity."
                   },
                   "hasDeleteProtection": {
@@ -211125,6 +211129,7 @@
                               "stripe",
                               "keeper",
                               "hpe-ilo",
+                              "servicenow",
                               "s3-compatible",
                               "jira"
                             ]
@@ -211225,6 +211230,7 @@
                                 "stripe",
                                 "keeper",
                                 "hpe-ilo",
+                                "servicenow",
                                 "s3-compatible",
                                 "jira"
                               ]
@@ -287397,6 +287403,7 @@
                               "stripe",
                               "keeper",
                               "hpe-ilo",
+                              "servicenow",
                               "s3-compatible",
                               "jira"
                             ]
@@ -287497,6 +287504,7 @@
                                 "stripe",
                                 "keeper",
                                 "hpe-ilo",
+                                "servicenow",
                                 "s3-compatible",
                                 "jira"
                               ]
@@ -342417,6 +342425,7 @@
                 "properties": {
                   "name": {
                     "type": "string",
+                    "maxLength": 255,
                     "description": "The name of the identity to create."
                   },
                   "organizationId": {
@@ -343141,6 +343150,7 @@
                 "properties": {
                   "name": {
                     "type": "string",
+                    "maxLength": 255,
                     "description": "The new name of the identity."
                   },
                   "role": {
@@ -355737,6 +355747,39 @@
                             ],
                             "additionalProperties": false,
                             "title": "HPE iLO"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "enum": [
+                                  "ServiceNow"
+                                ]
+                              },
+                              "app": {
+                                "type": "string",
+                                "enum": [
+                                  "servicenow"
+                                ]
+                              },
+                              "methods": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "basic-auth"
+                                  ]
+                                }
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "app",
+                              "methods"
+                            ],
+                            "additionalProperties": false,
+                            "title": "ServiceNow"
                           },
                           {
                             "type": "object",
@@ -375166,6 +375209,189 @@
                             ],
                             "additionalProperties": false,
                             "title": "HPE iLO (Basic Auth)"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "description": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "version": {
+                                "type": "number",
+                                "default": 1
+                              },
+                              "orgId": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "updatedAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "isPlatformManagedCredentials": {
+                                "type": "boolean",
+                                "default": false,
+                                "nullable": true
+                              },
+                              "gatewayId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "nullable": true
+                              },
+                              "projectId": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "isAutoRotationEnabled": {
+                                "type": "boolean",
+                                "default": false
+                              },
+                              "gatewayPoolId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "nullable": true
+                              },
+                              "rotation": {
+                                "type": "object",
+                                "properties": {
+                                  "lastRotationMessage": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "The message from the last rotation attempt."
+                                  },
+                                  "rotationInterval": {
+                                    "type": "number",
+                                    "description": "The interval in days between credential rotations."
+                                  },
+                                  "nextRotationAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "nullable": true,
+                                    "description": "The next scheduled rotation time."
+                                  },
+                                  "rotationStatus": {
+                                    "type": "string",
+                                    "enum": [
+                                      "success",
+                                      "failed"
+                                    ],
+                                    "description": "The status of the last rotation attempt."
+                                  },
+                                  "rotateAtUtc": {
+                                    "type": "object",
+                                    "properties": {
+                                      "hours": {
+                                        "type": "number",
+                                        "description": "The hour (0-23) at which to rotate."
+                                      },
+                                      "minutes": {
+                                        "type": "number",
+                                        "description": "The minute (0-59) at which to rotate."
+                                      }
+                                    },
+                                    "required": [
+                                      "hours",
+                                      "minutes"
+                                    ],
+                                    "additionalProperties": false,
+                                    "description": "The UTC time of day at which rotation should occur."
+                                  }
+                                },
+                                "required": [
+                                  "rotationInterval",
+                                  "rotationStatus",
+                                  "rotateAtUtc"
+                                ],
+                                "additionalProperties": false,
+                                "description": "The credential rotation configuration, if configured."
+                              },
+                              "credentialsHash": {
+                                "type": "string"
+                              },
+                              "project": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  },
+                                  "slug": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "id",
+                                  "type",
+                                  "slug"
+                                ],
+                                "additionalProperties": false,
+                                "nullable": true
+                              },
+                              "app": {
+                                "type": "string",
+                                "enum": [
+                                  "servicenow"
+                                ]
+                              },
+                              "method": {
+                                "type": "string",
+                                "enum": [
+                                  "basic-auth"
+                                ]
+                              },
+                              "credentials": {
+                                "type": "object",
+                                "properties": {
+                                  "instanceUrl": {
+                                    "type": "string",
+                                    "maxLength": 512,
+                                    "format": "uri",
+                                    "description": "The base URL of the ServiceNow instance to connect with, without a path or trailing slash."
+                                  },
+                                  "username": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 256,
+                                    "description": "The User ID of the ServiceNow integration user."
+                                  }
+                                },
+                                "required": [
+                                  "instanceUrl",
+                                  "username"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "orgId",
+                              "createdAt",
+                              "updatedAt",
+                              "app",
+                              "method",
+                              "credentials"
+                            ],
+                            "additionalProperties": false,
+                            "title": "ServiceNow (Basic Auth)"
                           },
                           {
                             "type": "object",
@@ -716061,6 +716287,3549 @@
         }
       }
     },
+    "/api/v1/app-connections/servicenow": {
+      "get": {
+        "operationId": "listServiceNowAppConnections",
+        "tags": [
+          "App Connections"
+        ],
+        "description": "List the ServiceNow Connections for the current organization or project.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "projectId",
+            "required": false,
+            "description": "The ID of the project to list ServiceNow Connections from."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appConnections": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "description": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "version": {
+                                "type": "number",
+                                "default": 1
+                              },
+                              "orgId": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "updatedAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "isPlatformManagedCredentials": {
+                                "type": "boolean",
+                                "default": false,
+                                "nullable": true
+                              },
+                              "gatewayId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "nullable": true
+                              },
+                              "projectId": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "isAutoRotationEnabled": {
+                                "type": "boolean",
+                                "default": false
+                              },
+                              "gatewayPoolId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "nullable": true
+                              },
+                              "rotation": {
+                                "type": "object",
+                                "properties": {
+                                  "lastRotationMessage": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "The message from the last rotation attempt."
+                                  },
+                                  "rotationInterval": {
+                                    "type": "number",
+                                    "description": "The interval in days between credential rotations."
+                                  },
+                                  "nextRotationAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "nullable": true,
+                                    "description": "The next scheduled rotation time."
+                                  },
+                                  "rotationStatus": {
+                                    "type": "string",
+                                    "enum": [
+                                      "success",
+                                      "failed"
+                                    ],
+                                    "description": "The status of the last rotation attempt."
+                                  },
+                                  "rotateAtUtc": {
+                                    "type": "object",
+                                    "properties": {
+                                      "hours": {
+                                        "type": "number",
+                                        "description": "The hour (0-23) at which to rotate."
+                                      },
+                                      "minutes": {
+                                        "type": "number",
+                                        "description": "The minute (0-59) at which to rotate."
+                                      }
+                                    },
+                                    "required": [
+                                      "hours",
+                                      "minutes"
+                                    ],
+                                    "additionalProperties": false,
+                                    "description": "The UTC time of day at which rotation should occur."
+                                  }
+                                },
+                                "required": [
+                                  "rotationInterval",
+                                  "rotationStatus",
+                                  "rotateAtUtc"
+                                ],
+                                "additionalProperties": false,
+                                "description": "The credential rotation configuration, if configured."
+                              },
+                              "credentialsHash": {
+                                "type": "string"
+                              },
+                              "project": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  },
+                                  "slug": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "id",
+                                  "type",
+                                  "slug"
+                                ],
+                                "additionalProperties": false,
+                                "nullable": true
+                              },
+                              "app": {
+                                "type": "string",
+                                "enum": [
+                                  "servicenow"
+                                ]
+                              },
+                              "method": {
+                                "type": "string",
+                                "enum": [
+                                  "basic-auth"
+                                ]
+                              },
+                              "credentials": {
+                                "type": "object",
+                                "properties": {
+                                  "instanceUrl": {
+                                    "type": "string",
+                                    "maxLength": 512,
+                                    "format": "uri",
+                                    "description": "The base URL of the ServiceNow instance to connect with, without a path or trailing slash."
+                                  },
+                                  "username": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 256,
+                                    "description": "The User ID of the ServiceNow integration user."
+                                  }
+                                },
+                                "required": [
+                                  "instanceUrl",
+                                  "username"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "orgId",
+                              "createdAt",
+                              "updatedAt",
+                              "app",
+                              "method",
+                              "credentials"
+                            ],
+                            "additionalProperties": false,
+                            "title": "ServiceNow (Basic Auth)"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "appConnections"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createServiceNowAppConnection",
+        "tags": [
+          "App Connections"
+        ],
+        "description": "Create a ServiceNow Connection.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "method": {
+                            "type": "string",
+                            "enum": [
+                              "basic-auth"
+                            ],
+                            "description": "The method used to authenticate with ServiceNow."
+                          },
+                          "credentials": {
+                            "type": "object",
+                            "properties": {
+                              "instanceUrl": {
+                                "type": "string",
+                                "maxLength": 512,
+                                "format": "uri",
+                                "description": "The base URL of the ServiceNow instance to connect with, without a path or trailing slash."
+                              },
+                              "username": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 256,
+                                "description": "The User ID of the ServiceNow integration user."
+                              },
+                              "password": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 512,
+                                "description": "The password of the ServiceNow integration user."
+                              }
+                            },
+                            "required": [
+                              "instanceUrl",
+                              "username",
+                              "password"
+                            ],
+                            "additionalProperties": false,
+                            "description": "The credentials used to connect with ServiceNow."
+                          }
+                        },
+                        "required": [
+                          "method",
+                          "credentials"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "description": "The name of the ServiceNow Connection to create. Must be slug-friendly."
+                      },
+                      "description": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "nullable": true,
+                        "description": "An optional description for the ServiceNow Connection."
+                      },
+                      "projectId": {
+                        "type": "string",
+                        "description": "The ID of the project to create the ServiceNow Connection in."
+                      },
+                      "isPlatformManagedCredentials": {
+                        "type": "boolean",
+                        "enum": [
+                          false
+                        ],
+                        "description": "Not supported for ServiceNow Connections."
+                      },
+                      "gatewayId": {
+                        "anyOf": [
+                          {
+                            "not": {}
+                          },
+                          {
+                            "enum": [
+                              "null"
+                            ],
+                            "nullable": true
+                          }
+                        ],
+                        "description": "Not supported for ServiceNow Connections."
+                      },
+                      "gatewayPoolId": {
+                        "anyOf": [
+                          {
+                            "not": {}
+                          },
+                          {
+                            "enum": [
+                              "null"
+                            ],
+                            "nullable": true
+                          }
+                        ],
+                        "description": "Not supported for ServiceNow Connections."
+                      },
+                      "isAutoRotationEnabled": {
+                        "type": "boolean",
+                        "enum": [
+                          false
+                        ],
+                        "description": "Not supported for ServiceNow Connections."
+                      },
+                      "rotation": {
+                        "anyOf": [
+                          {
+                            "not": {}
+                          },
+                          {
+                            "enum": [
+                              "null"
+                            ],
+                            "nullable": true
+                          }
+                        ],
+                        "description": "Not supported for ServiceNow Connections."
+                      }
+                    },
+                    "required": [
+                      "name"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appConnection": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "version": {
+                              "type": "number",
+                              "default": 1
+                            },
+                            "orgId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "isPlatformManagedCredentials": {
+                              "type": "boolean",
+                              "default": false,
+                              "nullable": true
+                            },
+                            "gatewayId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "projectId": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "isAutoRotationEnabled": {
+                              "type": "boolean",
+                              "default": false
+                            },
+                            "gatewayPoolId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "rotation": {
+                              "type": "object",
+                              "properties": {
+                                "lastRotationMessage": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The message from the last rotation attempt."
+                                },
+                                "rotationInterval": {
+                                  "type": "number",
+                                  "description": "The interval in days between credential rotations."
+                                },
+                                "nextRotationAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "nullable": true,
+                                  "description": "The next scheduled rotation time."
+                                },
+                                "rotationStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "success",
+                                    "failed"
+                                  ],
+                                  "description": "The status of the last rotation attempt."
+                                },
+                                "rotateAtUtc": {
+                                  "type": "object",
+                                  "properties": {
+                                    "hours": {
+                                      "type": "number",
+                                      "description": "The hour (0-23) at which to rotate."
+                                    },
+                                    "minutes": {
+                                      "type": "number",
+                                      "description": "The minute (0-59) at which to rotate."
+                                    }
+                                  },
+                                  "required": [
+                                    "hours",
+                                    "minutes"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The UTC time of day at which rotation should occur."
+                                }
+                              },
+                              "required": [
+                                "rotationInterval",
+                                "rotationStatus",
+                                "rotateAtUtc"
+                              ],
+                              "additionalProperties": false,
+                              "description": "The credential rotation configuration, if configured."
+                            },
+                            "credentialsHash": {
+                              "type": "string"
+                            },
+                            "project": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "slug": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "id",
+                                "type",
+                                "slug"
+                              ],
+                              "additionalProperties": false,
+                              "nullable": true
+                            },
+                            "app": {
+                              "type": "string",
+                              "enum": [
+                                "servicenow"
+                              ]
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "basic-auth"
+                              ]
+                            },
+                            "credentials": {
+                              "type": "object",
+                              "properties": {
+                                "instanceUrl": {
+                                  "type": "string",
+                                  "maxLength": 512,
+                                  "format": "uri",
+                                  "description": "The base URL of the ServiceNow instance to connect with, without a path or trailing slash."
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 256,
+                                  "description": "The User ID of the ServiceNow integration user."
+                                }
+                              },
+                              "required": [
+                                "instanceUrl",
+                                "username"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "orgId",
+                            "createdAt",
+                            "updatedAt",
+                            "app",
+                            "method",
+                            "credentials"
+                          ],
+                          "additionalProperties": false,
+                          "title": "ServiceNow (Basic Auth)"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "appConnection"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/app-connections/servicenow/available": {
+      "get": {
+        "operationId": "listServiceNowAvailableAppConnections",
+        "tags": [
+          "App Connections"
+        ],
+        "description": "List the ServiceNow Connections the current user has permission to establish connections within this project.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "projectId",
+            "required": false,
+            "description": "The ID of the project to list ServiceNow Connections from."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appConnections": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "app": {
+                            "type": "string",
+                            "enum": [
+                              "servicenow"
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "projectId": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "orgId": {
+                            "type": "string"
+                          },
+                          "gatewayId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "gatewayPoolId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "app",
+                          "name",
+                          "id",
+                          "orgId"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "appConnections"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/app-connections/servicenow/{connectionId}": {
+      "get": {
+        "operationId": "getServiceNowAppConnection",
+        "tags": [
+          "App Connections"
+        ],
+        "description": "Get the specified ServiceNow Connection by ID.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "connectionId",
+            "required": true,
+            "description": "The ID of the ServiceNow Connection to retrieve."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appConnection": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "version": {
+                              "type": "number",
+                              "default": 1
+                            },
+                            "orgId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "isPlatformManagedCredentials": {
+                              "type": "boolean",
+                              "default": false,
+                              "nullable": true
+                            },
+                            "gatewayId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "projectId": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "isAutoRotationEnabled": {
+                              "type": "boolean",
+                              "default": false
+                            },
+                            "gatewayPoolId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "rotation": {
+                              "type": "object",
+                              "properties": {
+                                "lastRotationMessage": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The message from the last rotation attempt."
+                                },
+                                "rotationInterval": {
+                                  "type": "number",
+                                  "description": "The interval in days between credential rotations."
+                                },
+                                "nextRotationAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "nullable": true,
+                                  "description": "The next scheduled rotation time."
+                                },
+                                "rotationStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "success",
+                                    "failed"
+                                  ],
+                                  "description": "The status of the last rotation attempt."
+                                },
+                                "rotateAtUtc": {
+                                  "type": "object",
+                                  "properties": {
+                                    "hours": {
+                                      "type": "number",
+                                      "description": "The hour (0-23) at which to rotate."
+                                    },
+                                    "minutes": {
+                                      "type": "number",
+                                      "description": "The minute (0-59) at which to rotate."
+                                    }
+                                  },
+                                  "required": [
+                                    "hours",
+                                    "minutes"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The UTC time of day at which rotation should occur."
+                                }
+                              },
+                              "required": [
+                                "rotationInterval",
+                                "rotationStatus",
+                                "rotateAtUtc"
+                              ],
+                              "additionalProperties": false,
+                              "description": "The credential rotation configuration, if configured."
+                            },
+                            "credentialsHash": {
+                              "type": "string"
+                            },
+                            "project": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "slug": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "id",
+                                "type",
+                                "slug"
+                              ],
+                              "additionalProperties": false,
+                              "nullable": true
+                            },
+                            "app": {
+                              "type": "string",
+                              "enum": [
+                                "servicenow"
+                              ]
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "basic-auth"
+                              ]
+                            },
+                            "credentials": {
+                              "type": "object",
+                              "properties": {
+                                "instanceUrl": {
+                                  "type": "string",
+                                  "maxLength": 512,
+                                  "format": "uri",
+                                  "description": "The base URL of the ServiceNow instance to connect with, without a path or trailing slash."
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 256,
+                                  "description": "The User ID of the ServiceNow integration user."
+                                }
+                              },
+                              "required": [
+                                "instanceUrl",
+                                "username"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "orgId",
+                            "createdAt",
+                            "updatedAt",
+                            "app",
+                            "method",
+                            "credentials"
+                          ],
+                          "additionalProperties": false,
+                          "title": "ServiceNow (Basic Auth)"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "appConnection"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateServiceNowAppConnection",
+        "tags": [
+          "App Connections"
+        ],
+        "description": "Update the specified ServiceNow Connection.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "credentials": {
+                        "type": "object",
+                        "properties": {
+                          "instanceUrl": {
+                            "type": "string",
+                            "maxLength": 512,
+                            "format": "uri",
+                            "description": "The base URL of the ServiceNow instance to connect with, without a path or trailing slash."
+                          },
+                          "username": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 256,
+                            "description": "The User ID of the ServiceNow integration user."
+                          },
+                          "password": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 512,
+                            "description": "The password of the ServiceNow integration user."
+                          }
+                        },
+                        "required": [
+                          "instanceUrl",
+                          "username",
+                          "password"
+                        ],
+                        "additionalProperties": false,
+                        "description": "The credentials used to connect with ServiceNow."
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "description": "The updated name of the ServiceNow Connection. Must be slug-friendly."
+                      },
+                      "description": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "nullable": true,
+                        "description": "The updated description of the ServiceNow Connection."
+                      },
+                      "isPlatformManagedCredentials": {
+                        "type": "boolean",
+                        "enum": [
+                          false
+                        ],
+                        "description": "Not supported for ServiceNow Connections."
+                      },
+                      "gatewayId": {
+                        "anyOf": [
+                          {
+                            "not": {}
+                          },
+                          {
+                            "enum": [
+                              "null"
+                            ],
+                            "nullable": true
+                          }
+                        ],
+                        "description": "Not supported for ServiceNow Connections."
+                      },
+                      "gatewayPoolId": {
+                        "anyOf": [
+                          {
+                            "not": {}
+                          },
+                          {
+                            "enum": [
+                              "null"
+                            ],
+                            "nullable": true
+                          }
+                        ],
+                        "description": "Not supported for ServiceNow Connections."
+                      },
+                      "isAutoRotationEnabled": {
+                        "type": "boolean",
+                        "enum": [
+                          false
+                        ],
+                        "description": "Not supported for ServiceNow Connections."
+                      },
+                      "rotation": {
+                        "anyOf": [
+                          {
+                            "not": {}
+                          },
+                          {
+                            "enum": [
+                              "null"
+                            ],
+                            "nullable": true
+                          }
+                        ],
+                        "description": "Not supported for ServiceNow Connections."
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "connectionId",
+            "required": true,
+            "description": "The ID of the ServiceNow Connection to be updated."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appConnection": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "version": {
+                              "type": "number",
+                              "default": 1
+                            },
+                            "orgId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "isPlatformManagedCredentials": {
+                              "type": "boolean",
+                              "default": false,
+                              "nullable": true
+                            },
+                            "gatewayId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "projectId": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "isAutoRotationEnabled": {
+                              "type": "boolean",
+                              "default": false
+                            },
+                            "gatewayPoolId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "rotation": {
+                              "type": "object",
+                              "properties": {
+                                "lastRotationMessage": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The message from the last rotation attempt."
+                                },
+                                "rotationInterval": {
+                                  "type": "number",
+                                  "description": "The interval in days between credential rotations."
+                                },
+                                "nextRotationAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "nullable": true,
+                                  "description": "The next scheduled rotation time."
+                                },
+                                "rotationStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "success",
+                                    "failed"
+                                  ],
+                                  "description": "The status of the last rotation attempt."
+                                },
+                                "rotateAtUtc": {
+                                  "type": "object",
+                                  "properties": {
+                                    "hours": {
+                                      "type": "number",
+                                      "description": "The hour (0-23) at which to rotate."
+                                    },
+                                    "minutes": {
+                                      "type": "number",
+                                      "description": "The minute (0-59) at which to rotate."
+                                    }
+                                  },
+                                  "required": [
+                                    "hours",
+                                    "minutes"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The UTC time of day at which rotation should occur."
+                                }
+                              },
+                              "required": [
+                                "rotationInterval",
+                                "rotationStatus",
+                                "rotateAtUtc"
+                              ],
+                              "additionalProperties": false,
+                              "description": "The credential rotation configuration, if configured."
+                            },
+                            "credentialsHash": {
+                              "type": "string"
+                            },
+                            "project": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "slug": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "id",
+                                "type",
+                                "slug"
+                              ],
+                              "additionalProperties": false,
+                              "nullable": true
+                            },
+                            "app": {
+                              "type": "string",
+                              "enum": [
+                                "servicenow"
+                              ]
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "basic-auth"
+                              ]
+                            },
+                            "credentials": {
+                              "type": "object",
+                              "properties": {
+                                "instanceUrl": {
+                                  "type": "string",
+                                  "maxLength": 512,
+                                  "format": "uri",
+                                  "description": "The base URL of the ServiceNow instance to connect with, without a path or trailing slash."
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 256,
+                                  "description": "The User ID of the ServiceNow integration user."
+                                }
+                              },
+                              "required": [
+                                "instanceUrl",
+                                "username"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "orgId",
+                            "createdAt",
+                            "updatedAt",
+                            "app",
+                            "method",
+                            "credentials"
+                          ],
+                          "additionalProperties": false,
+                          "title": "ServiceNow (Basic Auth)"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "appConnection"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteServiceNowAppConnection",
+        "tags": [
+          "App Connections"
+        ],
+        "description": "Delete the specified ServiceNow Connection.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "connectionId",
+            "required": true,
+            "description": "The ID of the ServiceNow Connection to be deleted."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appConnection": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "version": {
+                              "type": "number",
+                              "default": 1
+                            },
+                            "orgId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "isPlatformManagedCredentials": {
+                              "type": "boolean",
+                              "default": false,
+                              "nullable": true
+                            },
+                            "gatewayId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "projectId": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "isAutoRotationEnabled": {
+                              "type": "boolean",
+                              "default": false
+                            },
+                            "gatewayPoolId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "rotation": {
+                              "type": "object",
+                              "properties": {
+                                "lastRotationMessage": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The message from the last rotation attempt."
+                                },
+                                "rotationInterval": {
+                                  "type": "number",
+                                  "description": "The interval in days between credential rotations."
+                                },
+                                "nextRotationAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "nullable": true,
+                                  "description": "The next scheduled rotation time."
+                                },
+                                "rotationStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "success",
+                                    "failed"
+                                  ],
+                                  "description": "The status of the last rotation attempt."
+                                },
+                                "rotateAtUtc": {
+                                  "type": "object",
+                                  "properties": {
+                                    "hours": {
+                                      "type": "number",
+                                      "description": "The hour (0-23) at which to rotate."
+                                    },
+                                    "minutes": {
+                                      "type": "number",
+                                      "description": "The minute (0-59) at which to rotate."
+                                    }
+                                  },
+                                  "required": [
+                                    "hours",
+                                    "minutes"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The UTC time of day at which rotation should occur."
+                                }
+                              },
+                              "required": [
+                                "rotationInterval",
+                                "rotationStatus",
+                                "rotateAtUtc"
+                              ],
+                              "additionalProperties": false,
+                              "description": "The credential rotation configuration, if configured."
+                            },
+                            "credentialsHash": {
+                              "type": "string"
+                            },
+                            "project": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "slug": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "id",
+                                "type",
+                                "slug"
+                              ],
+                              "additionalProperties": false,
+                              "nullable": true
+                            },
+                            "app": {
+                              "type": "string",
+                              "enum": [
+                                "servicenow"
+                              ]
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "basic-auth"
+                              ]
+                            },
+                            "credentials": {
+                              "type": "object",
+                              "properties": {
+                                "instanceUrl": {
+                                  "type": "string",
+                                  "maxLength": 512,
+                                  "format": "uri",
+                                  "description": "The base URL of the ServiceNow instance to connect with, without a path or trailing slash."
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 256,
+                                  "description": "The User ID of the ServiceNow integration user."
+                                }
+                              },
+                              "required": [
+                                "instanceUrl",
+                                "username"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "orgId",
+                            "createdAt",
+                            "updatedAt",
+                            "app",
+                            "method",
+                            "credentials"
+                          ],
+                          "additionalProperties": false,
+                          "title": "ServiceNow (Basic Auth)"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "appConnection"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/app-connections/servicenow/connection-name/{connectionName}": {
+      "get": {
+        "operationId": "getServiceNowAppConnectionByName",
+        "tags": [
+          "App Connections"
+        ],
+        "description": "Get the specified ServiceNow Connection by name.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "projectId",
+            "required": false,
+            "description": "The project ID of the ServiceNow Connection is associated with. Leave unspecified to get organization-level connections."
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "connectionName",
+            "required": true,
+            "description": "The name of the ServiceNow Connection to retrieve."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appConnection": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "version": {
+                              "type": "number",
+                              "default": 1
+                            },
+                            "orgId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "isPlatformManagedCredentials": {
+                              "type": "boolean",
+                              "default": false,
+                              "nullable": true
+                            },
+                            "gatewayId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "projectId": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "isAutoRotationEnabled": {
+                              "type": "boolean",
+                              "default": false
+                            },
+                            "gatewayPoolId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "rotation": {
+                              "type": "object",
+                              "properties": {
+                                "lastRotationMessage": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The message from the last rotation attempt."
+                                },
+                                "rotationInterval": {
+                                  "type": "number",
+                                  "description": "The interval in days between credential rotations."
+                                },
+                                "nextRotationAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "nullable": true,
+                                  "description": "The next scheduled rotation time."
+                                },
+                                "rotationStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "success",
+                                    "failed"
+                                  ],
+                                  "description": "The status of the last rotation attempt."
+                                },
+                                "rotateAtUtc": {
+                                  "type": "object",
+                                  "properties": {
+                                    "hours": {
+                                      "type": "number",
+                                      "description": "The hour (0-23) at which to rotate."
+                                    },
+                                    "minutes": {
+                                      "type": "number",
+                                      "description": "The minute (0-59) at which to rotate."
+                                    }
+                                  },
+                                  "required": [
+                                    "hours",
+                                    "minutes"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The UTC time of day at which rotation should occur."
+                                }
+                              },
+                              "required": [
+                                "rotationInterval",
+                                "rotationStatus",
+                                "rotateAtUtc"
+                              ],
+                              "additionalProperties": false,
+                              "description": "The credential rotation configuration, if configured."
+                            },
+                            "credentialsHash": {
+                              "type": "string"
+                            },
+                            "project": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "slug": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "id",
+                                "type",
+                                "slug"
+                              ],
+                              "additionalProperties": false,
+                              "nullable": true
+                            },
+                            "app": {
+                              "type": "string",
+                              "enum": [
+                                "servicenow"
+                              ]
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "basic-auth"
+                              ]
+                            },
+                            "credentials": {
+                              "type": "object",
+                              "properties": {
+                                "instanceUrl": {
+                                  "type": "string",
+                                  "maxLength": 512,
+                                  "format": "uri",
+                                  "description": "The base URL of the ServiceNow instance to connect with, without a path or trailing slash."
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 256,
+                                  "description": "The User ID of the ServiceNow integration user."
+                                }
+                              },
+                              "required": [
+                                "instanceUrl",
+                                "username"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "orgId",
+                            "createdAt",
+                            "updatedAt",
+                            "app",
+                            "method",
+                            "credentials"
+                          ],
+                          "additionalProperties": false,
+                          "title": "ServiceNow (Basic Auth)"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "appConnection"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/app-connections/servicenow/{connectionId}/rotate-credentials": {
+      "post": {
+        "operationId": "rotateServiceNowAppConnectionCredentials",
+        "tags": [
+          "App Connections"
+        ],
+        "description": "Rotate the credentials for the specified ServiceNow Connection.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "connectionId",
+            "required": true,
+            "description": "The ID of the ServiceNow Connection to rotate credentials for."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appConnection": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "version": {
+                              "type": "number",
+                              "default": 1
+                            },
+                            "orgId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "isPlatformManagedCredentials": {
+                              "type": "boolean",
+                              "default": false,
+                              "nullable": true
+                            },
+                            "gatewayId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "projectId": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "isAutoRotationEnabled": {
+                              "type": "boolean",
+                              "default": false
+                            },
+                            "gatewayPoolId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "rotation": {
+                              "type": "object",
+                              "properties": {
+                                "lastRotationMessage": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The message from the last rotation attempt."
+                                },
+                                "rotationInterval": {
+                                  "type": "number",
+                                  "description": "The interval in days between credential rotations."
+                                },
+                                "nextRotationAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "nullable": true,
+                                  "description": "The next scheduled rotation time."
+                                },
+                                "rotationStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "success",
+                                    "failed"
+                                  ],
+                                  "description": "The status of the last rotation attempt."
+                                },
+                                "rotateAtUtc": {
+                                  "type": "object",
+                                  "properties": {
+                                    "hours": {
+                                      "type": "number",
+                                      "description": "The hour (0-23) at which to rotate."
+                                    },
+                                    "minutes": {
+                                      "type": "number",
+                                      "description": "The minute (0-59) at which to rotate."
+                                    }
+                                  },
+                                  "required": [
+                                    "hours",
+                                    "minutes"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The UTC time of day at which rotation should occur."
+                                }
+                              },
+                              "required": [
+                                "rotationInterval",
+                                "rotationStatus",
+                                "rotateAtUtc"
+                              ],
+                              "additionalProperties": false,
+                              "description": "The credential rotation configuration, if configured."
+                            },
+                            "credentialsHash": {
+                              "type": "string"
+                            },
+                            "project": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "slug": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "id",
+                                "type",
+                                "slug"
+                              ],
+                              "additionalProperties": false,
+                              "nullable": true
+                            },
+                            "app": {
+                              "type": "string",
+                              "enum": [
+                                "servicenow"
+                              ]
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "basic-auth"
+                              ]
+                            },
+                            "credentials": {
+                              "type": "object",
+                              "properties": {
+                                "instanceUrl": {
+                                  "type": "string",
+                                  "maxLength": 512,
+                                  "format": "uri",
+                                  "description": "The base URL of the ServiceNow instance to connect with, without a path or trailing slash."
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 256,
+                                  "description": "The User ID of the ServiceNow integration user."
+                                }
+                              },
+                              "required": [
+                                "instanceUrl",
+                                "username"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "orgId",
+                            "createdAt",
+                            "updatedAt",
+                            "app",
+                            "method",
+                            "credentials"
+                          ],
+                          "additionalProperties": false,
+                          "title": "ServiceNow (Basic Auth)"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "appConnection"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/app-connections/s3-compatible": {
       "get": {
         "operationId": "listS3CompatibleAppConnections",
@@ -1016973,6 +1020742,7 @@
                                     "stripe",
                                     "keeper",
                                     "hpe-ilo",
+                                    "servicenow",
                                     "s3-compatible",
                                     "jira"
                                   ]
