@@ -34285,6 +34285,17 @@
                     },
                     "enableGroupSync": {
                       "type": "boolean"
+                    },
+                    "mfaSignalAttribute": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "mfaAuthnContexts": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -34555,6 +34566,24 @@
                   "enableGroupSync": {
                     "type": "boolean",
                     "description": "Whether to enable automatic synchronization of group memberships from the SAML provider to Infisical groups."
+                  },
+                  "mfaSignalAttribute": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512,
+                    "nullable": true,
+                    "description": "The SAML attribute that lists the authentication methods the user completed, such as an Okta attribute with value session.amr. Set to null to use the provider's default: http://schemas.microsoft.com/claims/authnmethodsreferences for Azure / Entra ID, amr for every other provider."
+                  },
+                  "mfaAuthnContexts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    },
+                    "maxItems": 20,
+                    "nullable": true,
+                    "description": "Additional AuthnContextClassRef values, besides the built-in two-factor classes, that prove the identity provider completed MFA."
                   }
                 },
                 "required": [
@@ -34609,6 +34638,17 @@
                     },
                     "authProvider": {
                       "type": "string"
+                    },
+                    "mfaSignalAttribute": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "mfaAuthnContexts": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -34874,6 +34914,24 @@
                     "type": "boolean",
                     "description": "Whether to enable automatic synchronization of group memberships from the SAML provider to Infisical groups."
                   },
+                  "mfaSignalAttribute": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512,
+                    "nullable": true,
+                    "description": "The SAML attribute that lists the authentication methods the user completed, such as an Okta attribute with value session.amr. Set to null to use the provider's default: http://schemas.microsoft.com/claims/authnmethodsreferences for Azure / Entra ID, amr for every other provider."
+                  },
+                  "mfaAuthnContexts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    },
+                    "maxItems": 20,
+                    "nullable": true,
+                    "description": "Additional AuthnContextClassRef values, besides the built-in two-factor classes, that prove the identity provider completed MFA."
+                  },
                   "organizationId": {
                     "type": "string",
                     "description": "The ID of the organization to update the SAML config for."
@@ -34926,6 +34984,17 @@
                     },
                     "authProvider": {
                       "type": "string"
+                    },
+                    "mfaSignalAttribute": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "mfaAuthnContexts": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -35228,6 +35297,17 @@
                       "type": "string",
                       "default": "RS256"
                     },
+                    "mfaClaimName": {
+                      "type": "string",
+                      "default": "amr"
+                    },
+                    "mfaAmrValues": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true
+                    },
                     "clientId": {
                       "type": "string"
                     },
@@ -35515,6 +35595,23 @@
                     "type": "boolean",
                     "description": "Whether to enable or disable this OIDC configuration."
                   },
+                  "mfaClaimName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "description": "The ID token claim that lists the authentication methods the user completed. Defaults to amr."
+                  },
+                  "mfaAmrValues": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "maxItems": 20,
+                    "nullable": true,
+                    "description": "Additional MFA claim values, besides 'mfa', that prove the identity provider completed MFA."
+                  },
                   "manageGroupMemberships": {
                     "type": "boolean",
                     "description": "Whether to manage group memberships for the OIDC configuration. If enabled, users will automatically be assigned groups when they sign in, based on which groups they are a member of in the OIDC provider."
@@ -35600,6 +35697,17 @@
                     "manageGroupMemberships": {
                       "type": "boolean",
                       "default": false
+                    },
+                    "mfaClaimName": {
+                      "type": "string",
+                      "default": "amr"
+                    },
+                    "mfaAmrValues": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -35890,6 +35998,23 @@
                     "type": "string",
                     "description": "The ID of the organization to create the OIDC config for."
                   },
+                  "mfaClaimName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "description": "The ID token claim that lists the authentication methods the user completed. Defaults to amr."
+                  },
+                  "mfaAmrValues": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "maxItems": 20,
+                    "nullable": true,
+                    "description": "Additional MFA claim values, besides 'mfa', that prove the identity provider completed MFA."
+                  },
                   "manageGroupMemberships": {
                     "type": "boolean",
                     "default": false,
@@ -35981,6 +36106,17 @@
                     "jwtSignatureAlgorithm": {
                       "type": "string",
                       "default": "RS256"
+                    },
+                    "mfaClaimName": {
+                      "type": "string",
+                      "default": "amr"
+                    },
+                    "mfaAmrValues": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -60724,6 +60860,14 @@
                                 "nullable": true,
                                 "description": "The path prefixes this service allows, matched on whole segments, so `/repos` covers `/repos/octo` but not `/repositories`. `null` allows every path. A path-restricted service also refuses any request whose path would have to be normalised to judge."
                               },
+                              "allowedTools": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "nullable": true,
+                                "description": "The MCP tools agents can call through this service, by exact, case-sensitive name. Each name is 1 to 128 letters, numbers, underscores (_), hyphens (-), or dots (.). `null` allows every tool. The proxy refuses a call to any other tool and leaves it out of the server's tool list. MCP services only."
+                              },
                               "credential": {
                                 "anyOf": [
                                   {
@@ -61135,6 +61279,7 @@
                               "hostPattern",
                               "allowedMethods",
                               "allowedPathPrefixes",
+                              "allowedTools",
                               "credential",
                               "customHeaders",
                               "substitutions",
@@ -62280,6 +62425,16 @@
                         ],
                         "description": "The credential the proxy attaches to requests to the MCP server, a bearer token. To use OAuth instead, connect the service in the Infisical UI."
                       },
+                      "allowedTools": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "minItems": 1,
+                        "maxItems": 500,
+                        "nullable": true,
+                        "description": "The MCP tools agents can call through this service, by exact, case-sensitive name. Each name is 1 to 128 letters, numbers, underscores (_), hyphens (-), or dots (.). `null` allows every tool. The proxy refuses a call to any other tool and leaves it out of the server's tool list. MCP services only."
+                      },
                       "customHeaders": {
                         "type": "array",
                         "items": {
@@ -62418,6 +62573,14 @@
                           },
                           "nullable": true,
                           "description": "The path prefixes this service allows, matched on whole segments, so `/repos` covers `/repos/octo` but not `/repositories`. `null` allows every path. A path-restricted service also refuses any request whose path would have to be normalised to judge."
+                        },
+                        "allowedTools": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true,
+                          "description": "The MCP tools agents can call through this service, by exact, case-sensitive name. Each name is 1 to 128 letters, numbers, underscores (_), hyphens (-), or dots (.). `null` allows every tool. The proxy refuses a call to any other tool and leaves it out of the server's tool list. MCP services only."
                         },
                         "credential": {
                           "anyOf": [
@@ -62757,6 +62920,7 @@
                         "hostPattern",
                         "allowedMethods",
                         "allowedPathPrefixes",
+                        "allowedTools",
                         "credential",
                         "customHeaders",
                         "substitutions",
@@ -63328,6 +63492,16 @@
                         ],
                         "description": "The credential the proxy attaches to requests to the MCP server, a bearer token. To use OAuth instead, connect the service in the Infisical UI."
                       },
+                      "allowedTools": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "minItems": 1,
+                        "maxItems": 500,
+                        "nullable": true,
+                        "description": "The MCP tools agents can call through this service, by exact, case-sensitive name. Each name is 1 to 128 letters, numbers, underscores (_), hyphens (-), or dots (.). `null` allows every tool. The proxy refuses a call to any other tool and leaves it out of the server's tool list. MCP services only."
+                      },
                       "customHeaders": {
                         "type": "array",
                         "items": {
@@ -63476,6 +63650,14 @@
                           },
                           "nullable": true,
                           "description": "The path prefixes this service allows, matched on whole segments, so `/repos` covers `/repos/octo` but not `/repositories`. `null` allows every path. A path-restricted service also refuses any request whose path would have to be normalised to judge."
+                        },
+                        "allowedTools": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true,
+                          "description": "The MCP tools agents can call through this service, by exact, case-sensitive name. Each name is 1 to 128 letters, numbers, underscores (_), hyphens (-), or dots (.). `null` allows every tool. The proxy refuses a call to any other tool and leaves it out of the server's tool list. MCP services only."
                         },
                         "credential": {
                           "anyOf": [
@@ -63815,6 +63997,7 @@
                         "hostPattern",
                         "allowedMethods",
                         "allowedPathPrefixes",
+                        "allowedTools",
                         "credential",
                         "customHeaders",
                         "substitutions",
@@ -64142,6 +64325,14 @@
                           "nullable": true,
                           "description": "The path prefixes this service allows, matched on whole segments, so `/repos` covers `/repos/octo` but not `/repositories`. `null` allows every path. A path-restricted service also refuses any request whose path would have to be normalised to judge."
                         },
+                        "allowedTools": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true,
+                          "description": "The MCP tools agents can call through this service, by exact, case-sensitive name. Each name is 1 to 128 letters, numbers, underscores (_), hyphens (-), or dots (.). `null` allows every tool. The proxy refuses a call to any other tool and leaves it out of the server's tool list. MCP services only."
+                        },
                         "credential": {
                           "anyOf": [
                             {
@@ -64480,6 +64671,7 @@
                         "hostPattern",
                         "allowedMethods",
                         "allowedPathPrefixes",
+                        "allowedTools",
                         "credential",
                         "customHeaders",
                         "substitutions",
@@ -66292,6 +66484,20 @@
           {
             "schema": {
               "type": "string",
+              "enum": [
+                "user",
+                "machineIdentity",
+                "group"
+              ]
+            },
+            "in": "query",
+            "name": "actorType",
+            "required": false,
+            "description": "List only users, only groups or only machine identities."
+          },
+          {
+            "schema": {
+              "type": "string",
               "maxLength": 255,
               "pattern": "^[^\\x00-\\x1f\\x7f]*$"
             },
@@ -66381,6 +66587,10 @@
                                 "nullable": true,
                                 "description": "The last name of the user."
                               },
+                              "isOrgMembershipPending": {
+                                "type": "boolean",
+                                "description": "Whether the user still has an unaccepted invitation to the organization."
+                              },
                               "grantedAt": {
                                 "type": "string",
                                 "format": "date-time",
@@ -66394,6 +66604,7 @@
                               "email",
                               "firstName",
                               "lastName",
+                              "isOrgMembershipPending",
                               "grantedAt"
                             ],
                             "additionalProperties": false,
@@ -67583,6 +67794,20 @@
         ],
         "description": "List the Agent Vault members who can still be granted an access bundle",
         "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "user",
+                "machineIdentity",
+                "group"
+              ]
+            },
+            "in": "query",
+            "name": "actorType",
+            "required": false,
+            "description": "List only users, only groups or only machine identities."
+          },
           {
             "schema": {
               "type": "string",
@@ -72676,6 +72901,204 @@
                               ],
                               "additionalProperties": false
                             }
+                          },
+                          "services": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "The ID of the service sent with this session."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name the service was sent with, or its first host if it was sent without one. Shown in session logs and in the proxy's error messages."
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "http",
+                                    "mcp"
+                                  ],
+                                  "description": "The service type: `http` for an HTTP API, or `mcp` for a remote MCP server. Can't be changed after the service is created."
+                                },
+                                "serverUrl": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The MCP server's full URL. Null for an `http` service."
+                                },
+                                "transport": {
+                                  "type": "string",
+                                  "enum": [
+                                    "streamable-http",
+                                    "sse"
+                                  ],
+                                  "nullable": true,
+                                  "description": "How the agent talks to the MCP server: `streamable-http`, or `sse` for the legacy HTTP+SSE transport. Null for an `http` service."
+                                },
+                                "hostPattern": {
+                                  "type": "string",
+                                  "description": "A comma-separated set of hosts this service covers, each optionally with a port (defaults to `443`). A leading `*.` wildcard matches exactly one label. Paths are not supported."
+                                },
+                                "allowedMethods": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "GET",
+                                      "HEAD",
+                                      "POST",
+                                      "PUT",
+                                      "PATCH",
+                                      "DELETE",
+                                      "OPTIONS"
+                                    ]
+                                  },
+                                  "nullable": true,
+                                  "description": "The HTTP methods this service allows. Null allows every method. Anything else is refused by the proxy with a 403."
+                                },
+                                "allowedPathPrefixes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "nullable": true,
+                                  "description": "The path prefixes this service allows, matched on whole segments, so `/repos` covers `/repos/octo` but not `/repositories`. `null` allows every path. A path-restricted service also refuses any request whose path would have to be normalised to judge."
+                                },
+                                "credential": {
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "enum": [
+                                            "bearer"
+                                          ]
+                                        },
+                                        "headerName": {
+                                          "type": "string",
+                                          "description": "The header the credential is written to. Defaults to `Authorization`."
+                                        },
+                                        "headerPrefix": {
+                                          "type": "string",
+                                          "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
+                                        }
+                                      },
+                                      "required": [
+                                        "type",
+                                        "headerName",
+                                        "headerPrefix"
+                                      ],
+                                      "additionalProperties": false,
+                                      "title": "Bearer"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "enum": [
+                                            "basic"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "type"
+                                      ],
+                                      "additionalProperties": false,
+                                      "title": "Basic Auth"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "enum": [
+                                            "passthrough"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "type"
+                                      ],
+                                      "additionalProperties": false,
+                                      "title": "Pass-through"
+                                    }
+                                  ]
+                                },
+                                "customHeaders": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "name": {
+                                        "type": "string",
+                                        "description": "The name of the header, which must not be the credential's own header."
+                                      },
+                                      "prefix": {
+                                        "type": "string",
+                                        "description": "Written before the header value, separated by one space. Leave empty to send the value alone. Can't contain `{{` or `}}`."
+                                      }
+                                    },
+                                    "required": [
+                                      "name",
+                                      "prefix"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "description": "The headers the proxy attaches besides the credential, without their values."
+                                },
+                                "substitutions": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "placeholder": {
+                                        "type": "string",
+                                        "description": "The fake value your agent already sends. The proxy replaces it with the real secret. Matched as a plain string, so a distinctive placeholder is worth choosing. Can't contain `{{` or `}}`."
+                                      },
+                                      "surfaces": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "enum": [
+                                            "path",
+                                            "query",
+                                            "header",
+                                            "body"
+                                          ]
+                                        },
+                                        "description": "Where in the request to look for the placeholder: path, query, header or body."
+                                      }
+                                    },
+                                    "required": [
+                                      "placeholder",
+                                      "surfaces"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "description": "The placeholders the proxy swaps for a real secret, without their values."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "type",
+                                "serverUrl",
+                                "transport",
+                                "hostPattern",
+                                "allowedMethods",
+                                "allowedPathPrefixes",
+                                "credential",
+                                "customHeaders",
+                                "substitutions"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "description": "The services sent with this session when it was created, without their secrets. Its access bundle's services aren't listed here. Empty when the session carries only an access bundle."
                           }
                         },
                         "required": [
@@ -72687,7 +73110,8 @@
                           "expiresAt",
                           "revokedAt",
                           "createdAt",
-                          "accessBundles"
+                          "accessBundles",
+                          "services"
                         ],
                         "additionalProperties": false
                       }
@@ -72700,7 +73124,34 @@
                     "sessions",
                     "totalCount"
                   ],
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "example": {
+                    "sessions": [
+                      {
+                        "id": "d1f0b5a2-6c3e-4f8a-9b7d-2e4c6a8f0b13",
+                        "label": "Nightly deploy",
+                        "actor": {
+                          "type": "machineIdentity",
+                          "id": "7b1e4f2a-9c3d-4a6b-8e5f-1d2c3b4a5e6f",
+                          "name": "deploy-bot"
+                        },
+                        "onBehalfOf": null,
+                        "status": "active",
+                        "expiresAt": "2026-11-01T02:00:00.000Z",
+                        "revokedAt": null,
+                        "createdAt": "2026-10-31T18:00:00.000Z",
+                        "accessBundles": [
+                          {
+                            "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+                            "name": "prod-deploy",
+                            "position": 0
+                          }
+                        ],
+                        "services": []
+                      }
+                    ],
+                    "totalCount": 1
+                  }
                 }
               }
             }
@@ -72915,7 +73366,7 @@
         "tags": [
           "Agent Vault Sessions"
         ],
-        "description": "Create an Agent Vault session with an access bundle you can reach, or, as a machine identity with a delegation, on behalf of a user",
+        "description": "Create an Agent Vault session with an access bundle you can reach, services of its own (Agent Vault admins), or both, for yourself or, as a machine identity with a delegation, on behalf of a user",
         "requestBody": {
           "required": true,
           "content": {
@@ -72930,9 +73381,359 @@
                       "minLength": 1,
                       "maxLength": 64
                     },
-                    "minItems": 1,
                     "maxItems": 1,
-                    "description": "The access bundle this session carries, by name. A list that accepts exactly one name."
+                    "default": [],
+                    "description": "The access bundle this session carries, by name. A list that accepts one name at most. Leave it out to start a session with services of its own only."
+                  },
+                  "services": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "http"
+                              ],
+                              "description": "The service type: `http` for an HTTP API, or `mcp` for a remote MCP server. Can't be changed after the service is created."
+                            },
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 64,
+                              "description": "A name for the service, shown in session logs and in the proxy's error messages. Lowercase letters, numbers and hyphens. Leave it out and the service goes by its first host. Either way, it can't match the name of another service in the session or in its access bundle."
+                            },
+                            "hostPattern": {
+                              "type": "string",
+                              "maxLength": 1024,
+                              "description": "A comma-separated set of hosts this service covers, each optionally with a port (defaults to `443`). A leading `*.` wildcard matches exactly one label. Paths are not supported."
+                            },
+                            "allowedMethods": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "GET",
+                                  "HEAD",
+                                  "POST",
+                                  "PUT",
+                                  "PATCH",
+                                  "DELETE",
+                                  "OPTIONS"
+                                ]
+                              },
+                              "minItems": 1,
+                              "maxItems": 7,
+                              "nullable": true,
+                              "description": "The HTTP methods this service allows. Null allows every method. Anything else is refused by the proxy with a 403."
+                            },
+                            "allowedPathPrefixes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "minItems": 1,
+                              "maxItems": 20,
+                              "nullable": true,
+                              "description": "The path prefixes this service allows, matched on whole segments, so `/repos` covers `/repos/octo` but not `/repositories`. `null` allows every path. A path-restricted service also refuses any request whose path would have to be normalised to judge."
+                            },
+                            "credential": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "bearer"
+                                      ]
+                                    },
+                                    "headerName": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 128,
+                                      "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
+                                      "description": "The header the credential is written to. Defaults to `Authorization`."
+                                    },
+                                    "headerPrefix": {
+                                      "type": "string",
+                                      "maxLength": 64,
+                                      "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                      "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
+                                    },
+                                    "value": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 8192,
+                                      "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                      "description": "The secret, sent exactly as given. Services sent with a session can't use variables, so it can't wrap text in double braces. Never returned."
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Bearer"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "basic"
+                                      ]
+                                    },
+                                    "username": {
+                                      "type": "string",
+                                      "maxLength": 256,
+                                      "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                      "description": "The username half of the basic credential, sent exactly as given. May be empty if a password is set. Services sent with a session can't use variables, so it can't wrap text in double braces. Never returned."
+                                    },
+                                    "password": {
+                                      "type": "string",
+                                      "maxLength": 8192,
+                                      "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                      "description": "The password half of the basic credential, sent exactly as given. May be empty if a username is set. Services sent with a session can't use variables, so it can't wrap text in double braces. Never returned."
+                                    }
+                                  },
+                                  "required": [
+                                    "type"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Basic Auth"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "passthrough"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "type"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Pass-through"
+                                }
+                              ]
+                            },
+                            "customHeaders": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 128,
+                                    "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
+                                    "description": "The name of the header, which must not be the credential's own header."
+                                  },
+                                  "prefix": {
+                                    "type": "string",
+                                    "maxLength": 64,
+                                    "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                    "description": "Written before the header value, separated by one space. Leave empty to send the value alone. Can't contain `{{` or `}}`."
+                                  },
+                                  "value": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 8192,
+                                    "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                    "description": "The header value, sent exactly as given. Services sent with a session can't use variables, so it can't wrap text in double braces. Never returned."
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "value"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "maxItems": 20,
+                              "description": "Additional headers the proxy attaches to every request to this service, on top of the credential. Up to 20."
+                            },
+                            "substitutions": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "placeholder": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 255,
+                                    "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                    "description": "The fake value your agent already sends. The proxy replaces it with the real secret. Matched as a plain string, so a distinctive placeholder is worth choosing. Can't contain `{{` or `}}`."
+                                  },
+                                  "surfaces": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string",
+                                      "enum": [
+                                        "path",
+                                        "query",
+                                        "header",
+                                        "body"
+                                      ]
+                                    },
+                                    "minItems": 1,
+                                    "maxItems": 4,
+                                    "description": "Where in the request to look for the placeholder: path, query, header or body."
+                                  },
+                                  "value": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 8192,
+                                    "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                    "description": "The real value the placeholder is replaced with, sent exactly as given. Services sent with a session can't use variables, so it can't wrap text in double braces. Never returned."
+                                  }
+                                },
+                                "required": [
+                                  "placeholder",
+                                  "surfaces",
+                                  "value"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "maxItems": 20,
+                              "description": "Placeholders the proxy swaps for a real secret before forwarding. Up to 20."
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "hostPattern",
+                            "credential"
+                          ],
+                          "additionalProperties": false,
+                          "title": "HTTP service"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "mcp"
+                              ],
+                              "description": "The service type: `http` for an HTTP API, or `mcp` for a remote MCP server. Can't be changed after the service is created."
+                            },
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 64,
+                              "description": "A name for the service, shown in session logs and in the proxy's error messages. Lowercase letters, numbers and hyphens. Leave it out and the service goes by its first host. Either way, it can't match the name of another service in the session or in its access bundle."
+                            },
+                            "serverUrl": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 2048,
+                              "description": "The MCP server's URL, such as `https://mcp.example.com/mcp`. Must use `https`, with no username, password, query string or fragment."
+                            },
+                            "transport": {
+                              "type": "string",
+                              "enum": [
+                                "streamable-http",
+                                "sse"
+                              ],
+                              "description": "How the agent talks to the MCP server: `streamable-http`, or `sse` for the legacy HTTP+SSE transport."
+                            },
+                            "credential": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "bearer"
+                                      ]
+                                    },
+                                    "headerName": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 128,
+                                      "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
+                                      "description": "The header the credential is written to. Defaults to `Authorization`."
+                                    },
+                                    "headerPrefix": {
+                                      "type": "string",
+                                      "maxLength": 64,
+                                      "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                      "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
+                                    },
+                                    "value": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 8192,
+                                      "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                      "description": "The secret, sent exactly as given. Services sent with a session can't use variables, so it can't wrap text in double braces. Never returned."
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Bearer"
+                                }
+                              ],
+                              "description": "The credential the proxy attaches to requests to the MCP server, a bearer token."
+                            },
+                            "customHeaders": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 128,
+                                    "pattern": "^[A-Za-z0-9!#$%&'*+.^_`|~-]+$",
+                                    "description": "The name of the header, which must not be the credential's own header."
+                                  },
+                                  "prefix": {
+                                    "type": "string",
+                                    "maxLength": 64,
+                                    "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                    "description": "Written before the header value, separated by one space. Leave empty to send the value alone. Can't contain `{{` or `}}`."
+                                  },
+                                  "value": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 8192,
+                                    "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                                    "description": "The header value, sent exactly as given. Services sent with a session can't use variables, so it can't wrap text in double braces. Never returned."
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "value"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "maxItems": 20,
+                              "description": "Additional headers the proxy attaches to every request to this service, on top of the credential. Up to 20."
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "serverUrl",
+                            "transport",
+                            "credential"
+                          ],
+                          "additionalProperties": false,
+                          "title": "MCP service"
+                        }
+                      ]
+                    },
+                    "maxItems": 20,
+                    "description": "Services this session carries itself, alongside its access bundle's or without one. Agent Vault admins only, up to 20. Each takes the same fields as a service in an access bundle, with three differences: the name is optional, every value is sent exactly as given because variables aren't available, and no field can be left to members. They belong to this session only and can't be edited. Their credentials, custom header values and substitution values are deleted when the session is revoked, or within an hour after it expires."
                   },
                   "ttl": {
                     "type": "string",
@@ -72966,10 +73767,14 @@
                     "description": "A short description of what the session is for, such as `nightly deploy` or `support ticket triage`. Up to 128 characters, without line breaks, tabs, or invisible characters. Shown wherever the session is listed."
                   }
                 },
-                "required": [
-                  "accessBundles"
-                ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "example": {
+                  "accessBundles": [
+                    "prod-deploy"
+                  ],
+                  "ttl": "8h",
+                  "label": "Nightly deploy"
+                }
               }
             }
           }
@@ -73033,6 +73838,204 @@
                             ],
                             "additionalProperties": false
                           }
+                        },
+                        "services": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "The ID of the service sent with this session."
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "The name the service was sent with, or its first host if it was sent without one. Shown in session logs and in the proxy's error messages."
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "http",
+                                  "mcp"
+                                ],
+                                "description": "The service type: `http` for an HTTP API, or `mcp` for a remote MCP server. Can't be changed after the service is created."
+                              },
+                              "serverUrl": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "The MCP server's full URL. Null for an `http` service."
+                              },
+                              "transport": {
+                                "type": "string",
+                                "enum": [
+                                  "streamable-http",
+                                  "sse"
+                                ],
+                                "nullable": true,
+                                "description": "How the agent talks to the MCP server: `streamable-http`, or `sse` for the legacy HTTP+SSE transport. Null for an `http` service."
+                              },
+                              "hostPattern": {
+                                "type": "string",
+                                "description": "A comma-separated set of hosts this service covers, each optionally with a port (defaults to `443`). A leading `*.` wildcard matches exactly one label. Paths are not supported."
+                              },
+                              "allowedMethods": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "GET",
+                                    "HEAD",
+                                    "POST",
+                                    "PUT",
+                                    "PATCH",
+                                    "DELETE",
+                                    "OPTIONS"
+                                  ]
+                                },
+                                "nullable": true,
+                                "description": "The HTTP methods this service allows. Null allows every method. Anything else is refused by the proxy with a 403."
+                              },
+                              "allowedPathPrefixes": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "nullable": true,
+                                "description": "The path prefixes this service allows, matched on whole segments, so `/repos` covers `/repos/octo` but not `/repositories`. `null` allows every path. A path-restricted service also refuses any request whose path would have to be normalised to judge."
+                              },
+                              "credential": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "bearer"
+                                        ]
+                                      },
+                                      "headerName": {
+                                        "type": "string",
+                                        "description": "The header the credential is written to. Defaults to `Authorization`."
+                                      },
+                                      "headerPrefix": {
+                                        "type": "string",
+                                        "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "headerName",
+                                      "headerPrefix"
+                                    ],
+                                    "additionalProperties": false,
+                                    "title": "Bearer"
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "basic"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "type"
+                                    ],
+                                    "additionalProperties": false,
+                                    "title": "Basic Auth"
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "passthrough"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "type"
+                                    ],
+                                    "additionalProperties": false,
+                                    "title": "Pass-through"
+                                  }
+                                ]
+                              },
+                              "customHeaders": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "name": {
+                                      "type": "string",
+                                      "description": "The name of the header, which must not be the credential's own header."
+                                    },
+                                    "prefix": {
+                                      "type": "string",
+                                      "description": "Written before the header value, separated by one space. Leave empty to send the value alone. Can't contain `{{` or `}}`."
+                                    }
+                                  },
+                                  "required": [
+                                    "name",
+                                    "prefix"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "description": "The headers the proxy attaches besides the credential, without their values."
+                              },
+                              "substitutions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "placeholder": {
+                                      "type": "string",
+                                      "description": "The fake value your agent already sends. The proxy replaces it with the real secret. Matched as a plain string, so a distinctive placeholder is worth choosing. Can't contain `{{` or `}}`."
+                                    },
+                                    "surfaces": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "path",
+                                          "query",
+                                          "header",
+                                          "body"
+                                        ]
+                                      },
+                                      "description": "Where in the request to look for the placeholder: path, query, header or body."
+                                    }
+                                  },
+                                  "required": [
+                                    "placeholder",
+                                    "surfaces"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "description": "The placeholders the proxy swaps for a real secret, without their values."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "type",
+                              "serverUrl",
+                              "transport",
+                              "hostPattern",
+                              "allowedMethods",
+                              "allowedPathPrefixes",
+                              "credential",
+                              "customHeaders",
+                              "substitutions"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "The services sent with this session when it was created, without their secrets. Its access bundle's services aren't listed here. Empty when the session carries only an access bundle."
                         }
                       },
                       "required": [
@@ -73041,7 +74044,8 @@
                         "token",
                         "expiresAt",
                         "createdAt",
-                        "accessBundles"
+                        "accessBundles",
+                        "services"
                       ],
                       "additionalProperties": false
                     }
@@ -73049,7 +74053,24 @@
                   "required": [
                     "session"
                   ],
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "example": {
+                    "session": {
+                      "id": "d1f0b5a2-6c3e-4f8a-9b7d-2e4c6a8f0b13",
+                      "label": "Nightly deploy",
+                      "token": "agv_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                      "expiresAt": "2026-11-01T02:00:00.000Z",
+                      "createdAt": "2026-10-31T18:00:00.000Z",
+                      "accessBundles": [
+                        {
+                          "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+                          "name": "prod-deploy",
+                          "position": 0
+                        }
+                      ],
+                      "services": []
+                    }
+                  }
                 }
               }
             }
@@ -73476,6 +74497,204 @@
                             ],
                             "additionalProperties": false
                           }
+                        },
+                        "services": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "The ID of the service sent with this session."
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "The name the service was sent with, or its first host if it was sent without one. Shown in session logs and in the proxy's error messages."
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "http",
+                                  "mcp"
+                                ],
+                                "description": "The service type: `http` for an HTTP API, or `mcp` for a remote MCP server. Can't be changed after the service is created."
+                              },
+                              "serverUrl": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "The MCP server's full URL. Null for an `http` service."
+                              },
+                              "transport": {
+                                "type": "string",
+                                "enum": [
+                                  "streamable-http",
+                                  "sse"
+                                ],
+                                "nullable": true,
+                                "description": "How the agent talks to the MCP server: `streamable-http`, or `sse` for the legacy HTTP+SSE transport. Null for an `http` service."
+                              },
+                              "hostPattern": {
+                                "type": "string",
+                                "description": "A comma-separated set of hosts this service covers, each optionally with a port (defaults to `443`). A leading `*.` wildcard matches exactly one label. Paths are not supported."
+                              },
+                              "allowedMethods": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "GET",
+                                    "HEAD",
+                                    "POST",
+                                    "PUT",
+                                    "PATCH",
+                                    "DELETE",
+                                    "OPTIONS"
+                                  ]
+                                },
+                                "nullable": true,
+                                "description": "The HTTP methods this service allows. Null allows every method. Anything else is refused by the proxy with a 403."
+                              },
+                              "allowedPathPrefixes": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "nullable": true,
+                                "description": "The path prefixes this service allows, matched on whole segments, so `/repos` covers `/repos/octo` but not `/repositories`. `null` allows every path. A path-restricted service also refuses any request whose path would have to be normalised to judge."
+                              },
+                              "credential": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "bearer"
+                                        ]
+                                      },
+                                      "headerName": {
+                                        "type": "string",
+                                        "description": "The header the credential is written to. Defaults to `Authorization`."
+                                      },
+                                      "headerPrefix": {
+                                        "type": "string",
+                                        "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "headerName",
+                                      "headerPrefix"
+                                    ],
+                                    "additionalProperties": false,
+                                    "title": "Bearer"
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "basic"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "type"
+                                    ],
+                                    "additionalProperties": false,
+                                    "title": "Basic Auth"
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "passthrough"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "type"
+                                    ],
+                                    "additionalProperties": false,
+                                    "title": "Pass-through"
+                                  }
+                                ]
+                              },
+                              "customHeaders": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "name": {
+                                      "type": "string",
+                                      "description": "The name of the header, which must not be the credential's own header."
+                                    },
+                                    "prefix": {
+                                      "type": "string",
+                                      "description": "Written before the header value, separated by one space. Leave empty to send the value alone. Can't contain `{{` or `}}`."
+                                    }
+                                  },
+                                  "required": [
+                                    "name",
+                                    "prefix"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "description": "The headers the proxy attaches besides the credential, without their values."
+                              },
+                              "substitutions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "placeholder": {
+                                      "type": "string",
+                                      "description": "The fake value your agent already sends. The proxy replaces it with the real secret. Matched as a plain string, so a distinctive placeholder is worth choosing. Can't contain `{{` or `}}`."
+                                    },
+                                    "surfaces": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "path",
+                                          "query",
+                                          "header",
+                                          "body"
+                                        ]
+                                      },
+                                      "description": "Where in the request to look for the placeholder: path, query, header or body."
+                                    }
+                                  },
+                                  "required": [
+                                    "placeholder",
+                                    "surfaces"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "description": "The placeholders the proxy swaps for a real secret, without their values."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "type",
+                              "serverUrl",
+                              "transport",
+                              "hostPattern",
+                              "allowedMethods",
+                              "allowedPathPrefixes",
+                              "credential",
+                              "customHeaders",
+                              "substitutions"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "The services sent with this session when it was created, without their secrets. Its access bundle's services aren't listed here. Empty when the session carries only an access bundle."
                         }
                       },
                       "required": [
@@ -73487,7 +74706,8 @@
                         "expiresAt",
                         "revokedAt",
                         "createdAt",
-                        "accessBundles"
+                        "accessBundles",
+                        "services"
                       ],
                       "additionalProperties": false
                     }
@@ -73495,7 +74715,31 @@
                   "required": [
                     "session"
                   ],
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "example": {
+                    "session": {
+                      "id": "d1f0b5a2-6c3e-4f8a-9b7d-2e4c6a8f0b13",
+                      "label": "Nightly deploy",
+                      "actor": {
+                        "type": "machineIdentity",
+                        "id": "7b1e4f2a-9c3d-4a6b-8e5f-1d2c3b4a5e6f",
+                        "name": "deploy-bot"
+                      },
+                      "onBehalfOf": null,
+                      "status": "active",
+                      "expiresAt": "2026-11-01T02:00:00.000Z",
+                      "revokedAt": null,
+                      "createdAt": "2026-10-31T18:00:00.000Z",
+                      "accessBundles": [
+                        {
+                          "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+                          "name": "prod-deploy",
+                          "position": 0
+                        }
+                      ],
+                      "services": []
+                    }
+                  }
                 }
               }
             }
@@ -73942,6 +75186,204 @@
                             ],
                             "additionalProperties": false
                           }
+                        },
+                        "services": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "The ID of the service sent with this session."
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "The name the service was sent with, or its first host if it was sent without one. Shown in session logs and in the proxy's error messages."
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "http",
+                                  "mcp"
+                                ],
+                                "description": "The service type: `http` for an HTTP API, or `mcp` for a remote MCP server. Can't be changed after the service is created."
+                              },
+                              "serverUrl": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "The MCP server's full URL. Null for an `http` service."
+                              },
+                              "transport": {
+                                "type": "string",
+                                "enum": [
+                                  "streamable-http",
+                                  "sse"
+                                ],
+                                "nullable": true,
+                                "description": "How the agent talks to the MCP server: `streamable-http`, or `sse` for the legacy HTTP+SSE transport. Null for an `http` service."
+                              },
+                              "hostPattern": {
+                                "type": "string",
+                                "description": "A comma-separated set of hosts this service covers, each optionally with a port (defaults to `443`). A leading `*.` wildcard matches exactly one label. Paths are not supported."
+                              },
+                              "allowedMethods": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "GET",
+                                    "HEAD",
+                                    "POST",
+                                    "PUT",
+                                    "PATCH",
+                                    "DELETE",
+                                    "OPTIONS"
+                                  ]
+                                },
+                                "nullable": true,
+                                "description": "The HTTP methods this service allows. Null allows every method. Anything else is refused by the proxy with a 403."
+                              },
+                              "allowedPathPrefixes": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "nullable": true,
+                                "description": "The path prefixes this service allows, matched on whole segments, so `/repos` covers `/repos/octo` but not `/repositories`. `null` allows every path. A path-restricted service also refuses any request whose path would have to be normalised to judge."
+                              },
+                              "credential": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "bearer"
+                                        ]
+                                      },
+                                      "headerName": {
+                                        "type": "string",
+                                        "description": "The header the credential is written to. Defaults to `Authorization`."
+                                      },
+                                      "headerPrefix": {
+                                        "type": "string",
+                                        "description": "Written before the credential value, separated by one space. Leave empty for a header that carries the value alone, such as DD-API-KEY. Can't contain `{{` or `}}`. On update a field left out keeps its stored value, so send an empty string to clear the prefix when changing the header."
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "headerName",
+                                      "headerPrefix"
+                                    ],
+                                    "additionalProperties": false,
+                                    "title": "Bearer"
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "basic"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "type"
+                                    ],
+                                    "additionalProperties": false,
+                                    "title": "Basic Auth"
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "passthrough"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "type"
+                                    ],
+                                    "additionalProperties": false,
+                                    "title": "Pass-through"
+                                  }
+                                ]
+                              },
+                              "customHeaders": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "name": {
+                                      "type": "string",
+                                      "description": "The name of the header, which must not be the credential's own header."
+                                    },
+                                    "prefix": {
+                                      "type": "string",
+                                      "description": "Written before the header value, separated by one space. Leave empty to send the value alone. Can't contain `{{` or `}}`."
+                                    }
+                                  },
+                                  "required": [
+                                    "name",
+                                    "prefix"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "description": "The headers the proxy attaches besides the credential, without their values."
+                              },
+                              "substitutions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "placeholder": {
+                                      "type": "string",
+                                      "description": "The fake value your agent already sends. The proxy replaces it with the real secret. Matched as a plain string, so a distinctive placeholder is worth choosing. Can't contain `{{` or `}}`."
+                                    },
+                                    "surfaces": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "path",
+                                          "query",
+                                          "header",
+                                          "body"
+                                        ]
+                                      },
+                                      "description": "Where in the request to look for the placeholder: path, query, header or body."
+                                    }
+                                  },
+                                  "required": [
+                                    "placeholder",
+                                    "surfaces"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "description": "The placeholders the proxy swaps for a real secret, without their values."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "type",
+                              "serverUrl",
+                              "transport",
+                              "hostPattern",
+                              "allowedMethods",
+                              "allowedPathPrefixes",
+                              "credential",
+                              "customHeaders",
+                              "substitutions"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "The services sent with this session when it was created, without their secrets. Its access bundle's services aren't listed here. Empty when the session carries only an access bundle."
                         }
                       },
                       "required": [
@@ -73953,7 +75395,8 @@
                         "expiresAt",
                         "revokedAt",
                         "createdAt",
-                        "accessBundles"
+                        "accessBundles",
+                        "services"
                       ],
                       "additionalProperties": false
                     }
@@ -73961,7 +75404,31 @@
                   "required": [
                     "session"
                   ],
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "example": {
+                    "session": {
+                      "id": "d1f0b5a2-6c3e-4f8a-9b7d-2e4c6a8f0b13",
+                      "label": "Nightly deploy",
+                      "actor": {
+                        "type": "machineIdentity",
+                        "id": "7b1e4f2a-9c3d-4a6b-8e5f-1d2c3b4a5e6f",
+                        "name": "deploy-bot"
+                      },
+                      "onBehalfOf": null,
+                      "status": "active",
+                      "expiresAt": "2026-11-01T02:00:00.000Z",
+                      "revokedAt": null,
+                      "createdAt": "2026-10-31T18:00:00.000Z",
+                      "accessBundles": [
+                        {
+                          "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+                          "name": "prod-deploy",
+                          "position": 0
+                        }
+                      ],
+                      "services": []
+                    }
+                  }
                 }
               }
             }
@@ -79316,14 +80783,14 @@
                                 "type": "string",
                                 "enum": [
                                   "any-host",
-                                  "bundle-hosts"
+                                  "service-hosts"
                                 ],
-                                "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `bundle-hosts` allows only hosts an access bundle covers, plus anything in `allowedHosts`, and refuses the rest with a 403."
+                                "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `service-hosts` allows only hosts that the session's services cover, from its access bundle or sent with the session, plus anything in `allowedHosts`, and refuses the rest with a 403."
                               },
                               "allowedHosts": {
                                 "type": "string",
                                 "nullable": true,
-                                "description": "Hosts that stay reachable under the `bundle-hosts` traffic policy even though no access bundle covers them. Still intercepted, and given no credential."
+                                "description": "Hosts that stay reachable under the `service-hosts` traffic policy even though none of the session's services cover them. Still intercepted, and given no credential."
                               },
                               "pollInterval": {
                                 "type": "number",
@@ -79652,16 +81119,17 @@
                     "type": "string",
                     "enum": [
                       "any-host",
+                      "service-hosts",
                       "bundle-hosts"
                     ],
-                    "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `bundle-hosts` allows only hosts an access bundle covers, plus anything in `allowedHosts`, and refuses the rest with a 403.",
+                    "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `service-hosts` allows only hosts that the session's services cover, from its access bundle or sent with the session, plus anything in `allowedHosts`, and refuses the rest with a 403. `bundle-hosts` is the old name of `service-hosts` and is still accepted.",
                     "default": "any-host"
                   },
                   "allowedHosts": {
                     "type": "string",
                     "maxLength": 1024,
                     "nullable": true,
-                    "description": "Hosts that stay reachable under the `bundle-hosts` traffic policy even though no access bundle covers them. Still intercepted, and given no credential.",
+                    "description": "Hosts that stay reachable under the `service-hosts` traffic policy even though none of the session's services cover them. Still intercepted, and given no credential.",
                     "default": null
                   },
                   "pollInterval": {
@@ -79730,14 +81198,14 @@
                           "type": "string",
                           "enum": [
                             "any-host",
-                            "bundle-hosts"
+                            "service-hosts"
                           ],
-                          "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `bundle-hosts` allows only hosts an access bundle covers, plus anything in `allowedHosts`, and refuses the rest with a 403."
+                          "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `service-hosts` allows only hosts that the session's services cover, from its access bundle or sent with the session, plus anything in `allowedHosts`, and refuses the rest with a 403."
                         },
                         "allowedHosts": {
                           "type": "string",
                           "nullable": true,
-                          "description": "Hosts that stay reachable under the `bundle-hosts` traffic policy even though no access bundle covers them. Still intercepted, and given no credential."
+                          "description": "Hosts that stay reachable under the `service-hosts` traffic policy even though none of the session's services cover them. Still intercepted, and given no credential."
                         },
                         "pollInterval": {
                           "type": "number",
@@ -79985,6 +81453,273 @@
         }
       }
     },
+    "/api/v1/agent-vault/proxies/{proxyId}/ca": {
+      "get": {
+        "operationId": "getAgentVaultProxyCa",
+        "tags": [
+          "Agent Vault Proxies"
+        ],
+        "description": "Get the certificate authority an Agent Vault proxy serves. Returns 409 when the proxy serves its own certificate authority, which Infisical does not hold.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "proxyId",
+            "required": true,
+            "description": "The ID of the proxy."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ca": {
+                      "type": "object",
+                      "properties": {
+                        "certificate": {
+                          "type": "string",
+                          "description": "The certificate authority's certificate, in PEM form."
+                        },
+                        "fingerprint": {
+                          "type": "string",
+                          "description": "The SHA-256 fingerprint of the proxy's certificate authority. Pin this if you want to verify the proxy an agent connects to."
+                        },
+                        "expiresAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "When the proxy's certificate authority expires."
+                        }
+                      },
+                      "required": [
+                        "certificate",
+                        "fingerprint",
+                        "expiresAt"
+                      ],
+                      "additionalProperties": false,
+                      "description": "The certificate authority the proxy serves, with its certificate in PEM form. Agents trust it to accept the proxy's certificates."
+                    }
+                  },
+                  "required": [
+                    "ca"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/agent-vault/proxies/{proxyId}": {
       "patch": {
         "operationId": "updateAgentVaultProxy",
@@ -80016,15 +81751,16 @@
                     "type": "string",
                     "enum": [
                       "any-host",
+                      "service-hosts",
                       "bundle-hosts"
                     ],
-                    "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `bundle-hosts` allows only hosts an access bundle covers, plus anything in `allowedHosts`, and refuses the rest with a 403."
+                    "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `service-hosts` allows only hosts that the session's services cover, from its access bundle or sent with the session, plus anything in `allowedHosts`, and refuses the rest with a 403. `bundle-hosts` is the old name of `service-hosts` and is still accepted."
                   },
                   "allowedHosts": {
                     "type": "string",
                     "maxLength": 1024,
                     "nullable": true,
-                    "description": "Hosts that stay reachable under the `bundle-hosts` traffic policy even though no access bundle covers them. Still intercepted, and given no credential."
+                    "description": "Hosts that stay reachable under the `service-hosts` traffic policy even though none of the session's services cover them. Still intercepted, and given no credential."
                   },
                   "pollInterval": {
                     "type": "integer",
@@ -80100,14 +81836,14 @@
                           "type": "string",
                           "enum": [
                             "any-host",
-                            "bundle-hosts"
+                            "service-hosts"
                           ],
-                          "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `bundle-hosts` allows only hosts an access bundle covers, plus anything in `allowedHosts`, and refuses the rest with a 403."
+                          "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `service-hosts` allows only hosts that the session's services cover, from its access bundle or sent with the session, plus anything in `allowedHosts`, and refuses the rest with a 403."
                         },
                         "allowedHosts": {
                           "type": "string",
                           "nullable": true,
-                          "description": "Hosts that stay reachable under the `bundle-hosts` traffic policy even though no access bundle covers them. Still intercepted, and given no credential."
+                          "description": "Hosts that stay reachable under the `service-hosts` traffic policy even though none of the session's services cover them. Still intercepted, and given no credential."
                         },
                         "pollInterval": {
                           "type": "number",
@@ -80676,14 +82412,14 @@
                           "type": "string",
                           "enum": [
                             "any-host",
-                            "bundle-hosts"
+                            "service-hosts"
                           ],
-                          "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `bundle-hosts` allows only hosts an access bundle covers, plus anything in `allowedHosts`, and refuses the rest with a 403."
+                          "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `service-hosts` allows only hosts that the session's services cover, from its access bundle or sent with the session, plus anything in `allowedHosts`, and refuses the rest with a 403."
                         },
                         "allowedHosts": {
                           "type": "string",
                           "nullable": true,
-                          "description": "Hosts that stay reachable under the `bundle-hosts` traffic policy even though no access bundle covers them. Still intercepted, and given no credential."
+                          "description": "Hosts that stay reachable under the `service-hosts` traffic policy even though none of the session's services cover them. Still intercepted, and given no credential."
                         },
                         "pollInterval": {
                           "type": "number",
@@ -81000,14 +82736,14 @@
                           "type": "string",
                           "enum": [
                             "any-host",
-                            "bundle-hosts"
+                            "service-hosts"
                           ],
-                          "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `bundle-hosts` allows only hosts an access bundle covers, plus anything in `allowedHosts`, and refuses the rest with a 403."
+                          "description": "Which hosts an agent may reach through this proxy. `any-host` lets every request out; `service-hosts` allows only hosts that the session's services cover, from its access bundle or sent with the session, plus anything in `allowedHosts`, and refuses the rest with a 403."
                         },
                         "allowedHosts": {
                           "type": "string",
                           "nullable": true,
-                          "description": "Hosts that stay reachable under the `bundle-hosts` traffic policy even though no access bundle covers them. Still intercepted, and given no credential."
+                          "description": "Hosts that stay reachable under the `service-hosts` traffic policy even though none of the session's services cover them. Still intercepted, and given no credential."
                         },
                         "pollInterval": {
                           "type": "number",
@@ -113929,7 +115665,7 @@
                     },
                     {
                       "type": "string",
-                      "maxLength": 18370
+                      "maxLength": 18414
                     }
                   ]
                 },
@@ -114179,6 +115915,7 @@
                           "org-admin-bypassed-sso",
                           "user-login",
                           "select-organization",
+                          "select-organization-refused",
                           "select-sub-organization",
                           "create-certificate-policy",
                           "update-certificate-policy",
@@ -114406,6 +116143,7 @@
                           "create-project",
                           "update-project",
                           "delete-project",
+                          "restore-project",
                           "create-project-role",
                           "update-project-role",
                           "delete-project-role",
@@ -114665,7 +116403,7 @@
                           "update-audit-log-settings"
                         ]
                       },
-                      "maxItems": 720
+                      "maxItems": 722
                     }
                   ]
                 }
@@ -132388,6 +134126,20 @@
         "parameters": [
           {
             "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            },
+            "in": "query",
+            "name": "hardDelete",
+            "required": false,
+            "description": "When true, the project is permanently deleted shortly after the request. When false or omitted, a secret manager project is soft-deleted (preserved and scheduled for permanent deletion after a grace period) and hidden from subsequent reads."
+          },
+          {
+            "schema": {
               "type": "string"
             },
             "in": "path",
@@ -133418,6 +135170,1075 @@
                     "_id",
                     "environments",
                     "deletedEnvironments"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/deleted": {
+      "get": {
+        "operationId": "listDeletedProjects",
+        "tags": [
+          "Projects"
+        ],
+        "description": "List soft-deleted projects that can still be restored",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "secret-manager",
+                "cert-manager",
+                "kms",
+                "secret-scanning",
+                "pam",
+                "agent-vault"
+              ]
+            },
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "description": "The type of soft-deleted projects to list."
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "projects": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "deleteAfter": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "softDeletedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "deletedBy": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "user"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "email": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "username": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "firstName": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "lastName": {
+                                    "type": "string",
+                                    "nullable": true
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "id",
+                                  "email",
+                                  "username",
+                                  "firstName",
+                                  "lastName"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "identity"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "id",
+                                  "name"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ],
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "type",
+                          "deleteAfter",
+                          "softDeletedAt",
+                          "deletedBy"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "projects"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/deleted/{projectId}": {
+      "delete": {
+        "operationId": "permanentlyDeleteProject",
+        "tags": [
+          "Projects"
+        ],
+        "description": "Permanently delete a soft-deleted project without waiting for its grace period to end",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 36
+            },
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "description": "The ID of the soft-deleted project to permanently delete."
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "project": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "defaultProduct": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "autoCapitalization": {
+                          "type": "boolean",
+                          "default": false,
+                          "nullable": true
+                        },
+                        "orgId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "version": {
+                          "type": "number",
+                          "default": 1
+                        },
+                        "upgradeStatus": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "pitVersionLimit": {
+                          "type": "number",
+                          "default": 10
+                        },
+                        "kmsCertificateKeyId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "nullable": true
+                        },
+                        "kmsSecretManagerKeyId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "nullable": true
+                        },
+                        "auditLogsRetentionDays": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "hasDeleteProtection": {
+                          "type": "boolean",
+                          "default": false,
+                          "nullable": true
+                        },
+                        "secretSharing": {
+                          "type": "boolean",
+                          "default": true
+                        },
+                        "showSnapshotsLegacy": {
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "secretDetectionIgnoreValues": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "enforceEncryptedSecretManagerSecretMetadata": {
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "secretBlindIndexEnabled": {
+                          "type": "boolean",
+                          "default": true
+                        },
+                        "isLegacyAdditionalPrivilegesEnabled": {
+                          "type": "boolean",
+                          "default": false
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "type",
+                        "slug",
+                        "orgId",
+                        "createdAt",
+                        "updatedAt"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "project"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {}
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        403
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        422
+                      ]
+                    },
+                    "message": {},
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reqId": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reqId",
+                    "statusCode",
+                    "message",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{projectId}/restore": {
+      "post": {
+        "operationId": "restoreProject",
+        "tags": [
+          "Projects"
+        ],
+        "description": "Restore a soft-deleted project",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 36
+            },
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "description": "The ID of the soft-deleted project to restore."
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "project": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "defaultProduct": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "autoCapitalization": {
+                          "type": "boolean",
+                          "default": false,
+                          "nullable": true
+                        },
+                        "orgId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "version": {
+                          "type": "number",
+                          "default": 1
+                        },
+                        "upgradeStatus": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "pitVersionLimit": {
+                          "type": "number",
+                          "default": 10
+                        },
+                        "kmsCertificateKeyId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "nullable": true
+                        },
+                        "kmsSecretManagerKeyId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "nullable": true
+                        },
+                        "auditLogsRetentionDays": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "hasDeleteProtection": {
+                          "type": "boolean",
+                          "default": false,
+                          "nullable": true
+                        },
+                        "secretSharing": {
+                          "type": "boolean",
+                          "default": true
+                        },
+                        "showSnapshotsLegacy": {
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "secretDetectionIgnoreValues": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "enforceEncryptedSecretManagerSecretMetadata": {
+                          "type": "boolean",
+                          "nullable": true
+                        },
+                        "secretBlindIndexEnabled": {
+                          "type": "boolean",
+                          "default": true
+                        },
+                        "isLegacyAdditionalPrivilegesEnabled": {
+                          "type": "boolean",
+                          "default": false
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "type",
+                        "slug",
+                        "orgId",
+                        "createdAt",
+                        "updatedAt"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "project"
                   ],
                   "additionalProperties": false
                 }
