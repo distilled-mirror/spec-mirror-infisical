@@ -72877,30 +72877,25 @@
                             "type": "string",
                             "format": "date-time"
                           },
-                          "accessBundles": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "id": {
-                                  "type": "string",
-                                  "format": "uuid",
-                                  "nullable": true
-                                },
-                                "name": {
-                                  "type": "string"
-                                },
-                                "position": {
-                                  "type": "number"
-                                }
+                          "accessBundle": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "nullable": true
                               },
-                              "required": [
-                                "id",
-                                "name",
-                                "position"
-                              ],
-                              "additionalProperties": false
-                            }
+                              "name": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true,
+                            "description": "The access bundle this session carries. Null for a session with services of its own only."
                           },
                           "services": {
                             "type": "array",
@@ -73110,7 +73105,7 @@
                           "expiresAt",
                           "revokedAt",
                           "createdAt",
-                          "accessBundles",
+                          "accessBundle",
                           "services"
                         ],
                         "additionalProperties": false
@@ -73140,13 +73135,10 @@
                         "expiresAt": "2026-11-01T02:00:00.000Z",
                         "revokedAt": null,
                         "createdAt": "2026-10-31T18:00:00.000Z",
-                        "accessBundles": [
-                          {
-                            "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
-                            "name": "prod-deploy",
-                            "position": 0
-                          }
-                        ],
+                        "accessBundle": {
+                          "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+                          "name": "prod-deploy"
+                        },
                         "services": []
                       }
                     ],
@@ -73374,16 +73366,11 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "accessBundles": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "minLength": 1,
-                      "maxLength": 64
-                    },
-                    "maxItems": 1,
-                    "default": [],
-                    "description": "The access bundle this session carries, by name. A list that accepts one name at most. Leave it out to start a session with services of its own only."
+                  "accessBundle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "description": "The name of the access bundle this session carries. Leave it out to start a session with services of its own only."
                   },
                   "services": {
                     "type": "array",
@@ -73769,9 +73756,7 @@
                 },
                 "additionalProperties": false,
                 "example": {
-                  "accessBundles": [
-                    "prod-deploy"
-                  ],
+                  "accessBundle": "prod-deploy",
                   "ttl": "8h",
                   "label": "Nightly deploy"
                 }
@@ -73814,30 +73799,25 @@
                           "type": "string",
                           "format": "date-time"
                         },
-                        "accessBundles": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "string",
-                                "format": "uuid",
-                                "nullable": true
-                              },
-                              "name": {
-                                "type": "string"
-                              },
-                              "position": {
-                                "type": "number"
-                              }
+                        "accessBundle": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
                             },
-                            "required": [
-                              "id",
-                              "name",
-                              "position"
-                            ],
-                            "additionalProperties": false
-                          }
+                            "name": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name"
+                          ],
+                          "additionalProperties": false,
+                          "nullable": true,
+                          "description": "The access bundle this session carries. Null for a session with services of its own only."
                         },
                         "services": {
                           "type": "array",
@@ -74044,7 +74024,7 @@
                         "token",
                         "expiresAt",
                         "createdAt",
-                        "accessBundles",
+                        "accessBundle",
                         "services"
                       ],
                       "additionalProperties": false
@@ -74061,13 +74041,10 @@
                       "token": "agv_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
                       "expiresAt": "2026-11-01T02:00:00.000Z",
                       "createdAt": "2026-10-31T18:00:00.000Z",
-                      "accessBundles": [
-                        {
-                          "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
-                          "name": "prod-deploy",
-                          "position": 0
-                        }
-                      ],
+                      "accessBundle": {
+                        "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+                        "name": "prod-deploy"
+                      },
                       "services": []
                     }
                   }
@@ -74473,30 +74450,25 @@
                           "type": "string",
                           "format": "date-time"
                         },
-                        "accessBundles": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "string",
-                                "format": "uuid",
-                                "nullable": true
-                              },
-                              "name": {
-                                "type": "string"
-                              },
-                              "position": {
-                                "type": "number"
-                              }
+                        "accessBundle": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
                             },
-                            "required": [
-                              "id",
-                              "name",
-                              "position"
-                            ],
-                            "additionalProperties": false
-                          }
+                            "name": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name"
+                          ],
+                          "additionalProperties": false,
+                          "nullable": true,
+                          "description": "The access bundle this session carries. Null for a session with services of its own only."
                         },
                         "services": {
                           "type": "array",
@@ -74706,7 +74678,7 @@
                         "expiresAt",
                         "revokedAt",
                         "createdAt",
-                        "accessBundles",
+                        "accessBundle",
                         "services"
                       ],
                       "additionalProperties": false
@@ -74730,13 +74702,10 @@
                       "expiresAt": "2026-11-01T02:00:00.000Z",
                       "revokedAt": null,
                       "createdAt": "2026-10-31T18:00:00.000Z",
-                      "accessBundles": [
-                        {
-                          "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
-                          "name": "prod-deploy",
-                          "position": 0
-                        }
-                      ],
+                      "accessBundle": {
+                        "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+                        "name": "prod-deploy"
+                      },
                       "services": []
                     }
                   }
@@ -75162,30 +75131,25 @@
                           "type": "string",
                           "format": "date-time"
                         },
-                        "accessBundles": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "string",
-                                "format": "uuid",
-                                "nullable": true
-                              },
-                              "name": {
-                                "type": "string"
-                              },
-                              "position": {
-                                "type": "number"
-                              }
+                        "accessBundle": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
                             },
-                            "required": [
-                              "id",
-                              "name",
-                              "position"
-                            ],
-                            "additionalProperties": false
-                          }
+                            "name": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name"
+                          ],
+                          "additionalProperties": false,
+                          "nullable": true,
+                          "description": "The access bundle this session carries. Null for a session with services of its own only."
                         },
                         "services": {
                           "type": "array",
@@ -75395,7 +75359,7 @@
                         "expiresAt",
                         "revokedAt",
                         "createdAt",
-                        "accessBundles",
+                        "accessBundle",
                         "services"
                       ],
                       "additionalProperties": false
@@ -75419,13 +75383,10 @@
                       "expiresAt": "2026-11-01T02:00:00.000Z",
                       "revokedAt": null,
                       "createdAt": "2026-10-31T18:00:00.000Z",
-                      "accessBundles": [
-                        {
-                          "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
-                          "name": "prod-deploy",
-                          "position": 0
-                        }
-                      ],
+                      "accessBundle": {
+                        "id": "3c90c3cc-0d44-4b50-8888-8dd25736052a",
+                        "name": "prod-deploy"
+                      },
                       "services": []
                     }
                   }
@@ -183203,6 +183164,25 @@
                         },
                         "additionalProperties": false,
                         "description": "Certificate fields to change on renewal. Anything omitted is copied from the certificate being renewed. Profile defaults are not applied."
+                      },
+                      "externalConfiguration": {
+                        "type": "object",
+                        "properties": {
+                          "reissue": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ],
+                            "default": true,
+                            "description": "Whether to reissue the certificate on its current order with the issuing CA instead of placing a new order. Defaults to `false`. Only for CAs that support reissuing (currently DigiCert), and `ttl` can't be set. If the reissue removes or changes a name, the CA revokes the current certificate (DigiCert within 72 hours), so you also need permission to revoke it."
+                          }
+                        },
+                        "additionalProperties": false,
+                        "description": "Options for certificates issued by an external certificate authority."
                       }
                     },
                     "additionalProperties": false,
@@ -184014,6 +183994,12 @@
                                   ]
                                 },
                                 "orderId": {
+                                  "type": "integer",
+                                  "exclusiveMinimum": true,
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "certificateId": {
                                   "type": "integer",
                                   "exclusiveMinimum": true,
                                   "minimum": -9007199254740991,
