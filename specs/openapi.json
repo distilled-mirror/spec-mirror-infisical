@@ -60914,7 +60914,7 @@
                                             "credential-value"
                                           ]
                                         },
-                                        "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
+                                        "description": "The credential fields each member sets for themselves: credential-value (a bearer token, a basic password, or an OAuth sign-in) and credential-username. Empty when the admin sets the whole credential."
                                       }
                                     },
                                     "required": [
@@ -60944,7 +60944,7 @@
                                             "credential-username"
                                           ]
                                         },
-                                        "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
+                                        "description": "The credential fields each member sets for themselves: credential-value (a bearer token, a basic password, or an OAuth sign-in) and credential-username. Empty when the admin sets the whole credential."
                                       }
                                     },
                                     "required": [
@@ -60979,6 +60979,16 @@
                                           "oauth"
                                         ]
                                       },
+                                      "memberProvidedFields": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "enum": [
+                                            "credential-value"
+                                          ]
+                                        },
+                                        "description": "The credential fields each member sets for themselves: credential-value (a bearer token, a basic password, or an OAuth sign-in) and credential-username. Empty when the admin sets the whole credential."
+                                      },
                                       "status": {
                                         "type": "string",
                                         "enum": [
@@ -60986,11 +60996,24 @@
                                           "needs-reauthorization",
                                           "needs-additional-scopes"
                                         ],
-                                        "description": "Whether the OAuth connection works: `connected`, `needs-reauthorization` (the tokens can no longer be refreshed), or `needs-additional-scopes` (the MCP server asked for scopes the connection lacks)."
+                                        "description": "Whether the OAuth connection works: `connected`, `needs-reauthorization` (the tokens can no longer be refreshed), or `needs-additional-scopes` (the MCP server asked for scopes the connection lacks). Absent when each member signs in for themselves."
                                       },
                                       "issuer": {
                                         "type": "string",
                                         "description": "The OAuth authorization server that issued the tokens."
+                                      },
+                                      "registration": {
+                                        "type": "string",
+                                        "enum": [
+                                          "dynamic",
+                                          "manual"
+                                        ],
+                                        "description": "With the sign-in left to members: `manual` when every member signs in with your own OAuth app, `dynamic` when each sign-in registers its own client."
+                                      },
+                                      "clientId": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "description": "With the sign-in left to members and your own OAuth app: its client ID."
                                       },
                                       "grantedScopes": {
                                         "type": "array",
@@ -61024,7 +61047,7 @@
                                     },
                                     "required": [
                                       "type",
-                                      "status",
+                                      "memberProvidedFields",
                                       "issuer",
                                       "grantedScopes",
                                       "requiredScopes"
@@ -61232,7 +61255,7 @@
                                             "credential-value",
                                             "credential-username"
                                           ],
-                                          "description": "Which value: credential-value (a bearer token or a basic password) or credential-username (a basic username)."
+                                          "description": "Which value: credential-value (a bearer token, a basic password, or an OAuth sign-in) or credential-username (a basic username)."
                                         },
                                         "isSet": {
                                           "type": "boolean",
@@ -61242,7 +61265,7 @@
                                           "type": "string",
                                           "format": "date-time",
                                           "nullable": true,
-                                          "description": "When you last set this value, or null if you haven't."
+                                          "description": "When this value last changed, or null if you haven't set it."
                                         },
                                         "variableReferences": {
                                           "type": "array",
@@ -61266,13 +61289,73 @@
                                             "additionalProperties": false
                                           },
                                           "description": "Your personal variables that this value uses."
+                                        },
+                                        "oauth": {
+                                          "type": "object",
+                                          "properties": {
+                                            "status": {
+                                              "type": "string",
+                                              "enum": [
+                                                "connected",
+                                                "needs-reauthorization",
+                                                "needs-additional-scopes"
+                                              ],
+                                              "description": "`connected`, `needs-reauthorization` (your login is no longer accepted, so connect again; until then your sessions can't use the service), or `needs-additional-scopes` (the MCP server asked for scopes your connection lacks; connect again to grant them)."
+                                            },
+                                            "issuer": {
+                                              "type": "string",
+                                              "description": "The OAuth authorization server that issued the tokens."
+                                            },
+                                            "grantedScopes": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "string"
+                                              },
+                                              "description": "The scopes the authorization server granted."
+                                            },
+                                            "requiredScopes": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "string"
+                                              },
+                                              "description": "Scopes the MCP server asked for that your connection lacks. Connect again to grant them."
+                                            },
+                                            "expiresAt": {
+                                              "type": "string",
+                                              "nullable": true,
+                                              "description": "When your current access token expires, or null if the server didn't say."
+                                            },
+                                            "authorizedAt": {
+                                              "type": "string",
+                                              "nullable": true,
+                                              "description": "When you last connected your account."
+                                            },
+                                            "lastError": {
+                                              "type": "string",
+                                              "nullable": true,
+                                              "description": "The last refresh failure for your connection, if any. Never contains a token."
+                                            }
+                                          },
+                                          "required": [
+                                            "status",
+                                            "issuer",
+                                            "grantedScopes",
+                                            "requiredScopes",
+                                            "expiresAt",
+                                            "authorizedAt",
+                                            "lastError"
+                                          ],
+                                          "additionalProperties": false,
+                                          "nullable": true,
+                                          "description": "For the credential-value field of a service that leaves its OAuth sign-in to members: your connection's status, or null if you haven't connected. Null for every other field."
                                         }
                                       },
                                       "required": [
                                         "field",
                                         "isSet",
                                         "updatedAt",
-                                        "variableReferences"
+                                        "variableReferences",
+                                        "oauth"
                                       ],
                                       "additionalProperties": false
                                     },
@@ -62628,7 +62711,7 @@
                                       "credential-value"
                                     ]
                                   },
-                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token, a basic password, or an OAuth sign-in) and credential-username. Empty when the admin sets the whole credential."
                                 }
                               },
                               "required": [
@@ -62658,7 +62741,7 @@
                                       "credential-username"
                                     ]
                                   },
-                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token, a basic password, or an OAuth sign-in) and credential-username. Empty when the admin sets the whole credential."
                                 }
                               },
                               "required": [
@@ -62693,6 +62776,16 @@
                                     "oauth"
                                   ]
                                 },
+                                "memberProvidedFields": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "credential-value"
+                                    ]
+                                  },
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token, a basic password, or an OAuth sign-in) and credential-username. Empty when the admin sets the whole credential."
+                                },
                                 "status": {
                                   "type": "string",
                                   "enum": [
@@ -62700,11 +62793,24 @@
                                     "needs-reauthorization",
                                     "needs-additional-scopes"
                                   ],
-                                  "description": "Whether the OAuth connection works: `connected`, `needs-reauthorization` (the tokens can no longer be refreshed), or `needs-additional-scopes` (the MCP server asked for scopes the connection lacks)."
+                                  "description": "Whether the OAuth connection works: `connected`, `needs-reauthorization` (the tokens can no longer be refreshed), or `needs-additional-scopes` (the MCP server asked for scopes the connection lacks). Absent when each member signs in for themselves."
                                 },
                                 "issuer": {
                                   "type": "string",
                                   "description": "The OAuth authorization server that issued the tokens."
+                                },
+                                "registration": {
+                                  "type": "string",
+                                  "enum": [
+                                    "dynamic",
+                                    "manual"
+                                  ],
+                                  "description": "With the sign-in left to members: `manual` when every member signs in with your own OAuth app, `dynamic` when each sign-in registers its own client."
+                                },
+                                "clientId": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "With the sign-in left to members and your own OAuth app: its client ID."
                                 },
                                 "grantedScopes": {
                                   "type": "array",
@@ -62738,7 +62844,7 @@
                               },
                               "required": [
                                 "type",
-                                "status",
+                                "memberProvidedFields",
                                 "issuer",
                                 "grantedScopes",
                                 "requiredScopes"
@@ -63705,7 +63811,7 @@
                                       "credential-value"
                                     ]
                                   },
-                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token, a basic password, or an OAuth sign-in) and credential-username. Empty when the admin sets the whole credential."
                                 }
                               },
                               "required": [
@@ -63735,7 +63841,7 @@
                                       "credential-username"
                                     ]
                                   },
-                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token, a basic password, or an OAuth sign-in) and credential-username. Empty when the admin sets the whole credential."
                                 }
                               },
                               "required": [
@@ -63770,6 +63876,16 @@
                                     "oauth"
                                   ]
                                 },
+                                "memberProvidedFields": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "credential-value"
+                                    ]
+                                  },
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token, a basic password, or an OAuth sign-in) and credential-username. Empty when the admin sets the whole credential."
+                                },
                                 "status": {
                                   "type": "string",
                                   "enum": [
@@ -63777,11 +63893,24 @@
                                     "needs-reauthorization",
                                     "needs-additional-scopes"
                                   ],
-                                  "description": "Whether the OAuth connection works: `connected`, `needs-reauthorization` (the tokens can no longer be refreshed), or `needs-additional-scopes` (the MCP server asked for scopes the connection lacks)."
+                                  "description": "Whether the OAuth connection works: `connected`, `needs-reauthorization` (the tokens can no longer be refreshed), or `needs-additional-scopes` (the MCP server asked for scopes the connection lacks). Absent when each member signs in for themselves."
                                 },
                                 "issuer": {
                                   "type": "string",
                                   "description": "The OAuth authorization server that issued the tokens."
+                                },
+                                "registration": {
+                                  "type": "string",
+                                  "enum": [
+                                    "dynamic",
+                                    "manual"
+                                  ],
+                                  "description": "With the sign-in left to members: `manual` when every member signs in with your own OAuth app, `dynamic` when each sign-in registers its own client."
+                                },
+                                "clientId": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "With the sign-in left to members and your own OAuth app: its client ID."
                                 },
                                 "grantedScopes": {
                                   "type": "array",
@@ -63815,7 +63944,7 @@
                               },
                               "required": [
                                 "type",
-                                "status",
+                                "memberProvidedFields",
                                 "issuer",
                                 "grantedScopes",
                                 "requiredScopes"
@@ -64379,7 +64508,7 @@
                                       "credential-value"
                                     ]
                                   },
-                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token, a basic password, or an OAuth sign-in) and credential-username. Empty when the admin sets the whole credential."
                                 }
                               },
                               "required": [
@@ -64409,7 +64538,7 @@
                                       "credential-username"
                                     ]
                                   },
-                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token or a basic password) and credential-username. Empty when the admin sets the whole credential."
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token, a basic password, or an OAuth sign-in) and credential-username. Empty when the admin sets the whole credential."
                                 }
                               },
                               "required": [
@@ -64444,6 +64573,16 @@
                                     "oauth"
                                   ]
                                 },
+                                "memberProvidedFields": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "credential-value"
+                                    ]
+                                  },
+                                  "description": "The credential fields each member sets for themselves: credential-value (a bearer token, a basic password, or an OAuth sign-in) and credential-username. Empty when the admin sets the whole credential."
+                                },
                                 "status": {
                                   "type": "string",
                                   "enum": [
@@ -64451,11 +64590,24 @@
                                     "needs-reauthorization",
                                     "needs-additional-scopes"
                                   ],
-                                  "description": "Whether the OAuth connection works: `connected`, `needs-reauthorization` (the tokens can no longer be refreshed), or `needs-additional-scopes` (the MCP server asked for scopes the connection lacks)."
+                                  "description": "Whether the OAuth connection works: `connected`, `needs-reauthorization` (the tokens can no longer be refreshed), or `needs-additional-scopes` (the MCP server asked for scopes the connection lacks). Absent when each member signs in for themselves."
                                 },
                                 "issuer": {
                                   "type": "string",
                                   "description": "The OAuth authorization server that issued the tokens."
+                                },
+                                "registration": {
+                                  "type": "string",
+                                  "enum": [
+                                    "dynamic",
+                                    "manual"
+                                  ],
+                                  "description": "With the sign-in left to members: `manual` when every member signs in with your own OAuth app, `dynamic` when each sign-in registers its own client."
+                                },
+                                "clientId": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "With the sign-in left to members and your own OAuth app: its client ID."
                                 },
                                 "grantedScopes": {
                                   "type": "array",
@@ -64489,7 +64641,7 @@
                               },
                               "required": [
                                 "type",
-                                "status",
+                                "memberProvidedFields",
                                 "issuer",
                                 "grantedScopes",
                                 "requiredScopes"
@@ -64941,7 +65093,7 @@
                               "enum": [
                                 "credential-username"
                               ],
-                              "description": "Which value: credential-value (a bearer token or a basic password) or credential-username (a basic username)."
+                              "description": "Which value: credential-value (a bearer token, a basic password, or an OAuth sign-in) or credential-username (a basic username)."
                             },
                             "value": {
                               "type": "string",
@@ -64966,7 +65118,7 @@
                               "enum": [
                                 "credential-value"
                               ],
-                              "description": "Which value: credential-value (a bearer token or a basic password) or credential-username (a basic username)."
+                              "description": "Which value: credential-value (a bearer token, a basic password, or an OAuth sign-in) or credential-username (a basic username)."
                             },
                             "value": {
                               "type": "string",
@@ -65056,7 +65208,7 @@
                                   "credential-value",
                                   "credential-username"
                                 ],
-                                "description": "Which value: credential-value (a bearer token or a basic password) or credential-username (a basic username)."
+                                "description": "Which value: credential-value (a bearer token, a basic password, or an OAuth sign-in) or credential-username (a basic username)."
                               },
                               "isSet": {
                                 "type": "boolean",
@@ -65066,7 +65218,7 @@
                                 "type": "string",
                                 "format": "date-time",
                                 "nullable": true,
-                                "description": "When you last set this value, or null if you haven't."
+                                "description": "When this value last changed, or null if you haven't set it."
                               },
                               "variableReferences": {
                                 "type": "array",
@@ -65090,13 +65242,73 @@
                                   "additionalProperties": false
                                 },
                                 "description": "Your personal variables that this value uses."
+                              },
+                              "oauth": {
+                                "type": "object",
+                                "properties": {
+                                  "status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "connected",
+                                      "needs-reauthorization",
+                                      "needs-additional-scopes"
+                                    ],
+                                    "description": "`connected`, `needs-reauthorization` (your login is no longer accepted, so connect again; until then your sessions can't use the service), or `needs-additional-scopes` (the MCP server asked for scopes your connection lacks; connect again to grant them)."
+                                  },
+                                  "issuer": {
+                                    "type": "string",
+                                    "description": "The OAuth authorization server that issued the tokens."
+                                  },
+                                  "grantedScopes": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "description": "The scopes the authorization server granted."
+                                  },
+                                  "requiredScopes": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "description": "Scopes the MCP server asked for that your connection lacks. Connect again to grant them."
+                                  },
+                                  "expiresAt": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "When your current access token expires, or null if the server didn't say."
+                                  },
+                                  "authorizedAt": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "When you last connected your account."
+                                  },
+                                  "lastError": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "The last refresh failure for your connection, if any. Never contains a token."
+                                  }
+                                },
+                                "required": [
+                                  "status",
+                                  "issuer",
+                                  "grantedScopes",
+                                  "requiredScopes",
+                                  "expiresAt",
+                                  "authorizedAt",
+                                  "lastError"
+                                ],
+                                "additionalProperties": false,
+                                "nullable": true,
+                                "description": "For the credential-value field of a service that leaves its OAuth sign-in to members: your connection's status, or null if you haven't connected. Null for every other field."
                               }
                             },
                             "required": [
                               "field",
                               "isSet",
                               "updatedAt",
-                              "variableReferences"
+                              "variableReferences",
+                              "oauth"
                             ],
                             "additionalProperties": false
                           },
@@ -65378,7 +65590,7 @@
                                   "credential-value",
                                   "credential-username"
                                 ],
-                                "description": "Which value: credential-value (a bearer token or a basic password) or credential-username (a basic username)."
+                                "description": "Which value: credential-value (a bearer token, a basic password, or an OAuth sign-in) or credential-username (a basic username)."
                               },
                               "isSet": {
                                 "type": "boolean",
@@ -65388,7 +65600,7 @@
                                 "type": "string",
                                 "format": "date-time",
                                 "nullable": true,
-                                "description": "When you last set this value, or null if you haven't."
+                                "description": "When this value last changed, or null if you haven't set it."
                               },
                               "variableReferences": {
                                 "type": "array",
@@ -65412,13 +65624,73 @@
                                   "additionalProperties": false
                                 },
                                 "description": "Your personal variables that this value uses."
+                              },
+                              "oauth": {
+                                "type": "object",
+                                "properties": {
+                                  "status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "connected",
+                                      "needs-reauthorization",
+                                      "needs-additional-scopes"
+                                    ],
+                                    "description": "`connected`, `needs-reauthorization` (your login is no longer accepted, so connect again; until then your sessions can't use the service), or `needs-additional-scopes` (the MCP server asked for scopes your connection lacks; connect again to grant them)."
+                                  },
+                                  "issuer": {
+                                    "type": "string",
+                                    "description": "The OAuth authorization server that issued the tokens."
+                                  },
+                                  "grantedScopes": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "description": "The scopes the authorization server granted."
+                                  },
+                                  "requiredScopes": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "description": "Scopes the MCP server asked for that your connection lacks. Connect again to grant them."
+                                  },
+                                  "expiresAt": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "When your current access token expires, or null if the server didn't say."
+                                  },
+                                  "authorizedAt": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "When you last connected your account."
+                                  },
+                                  "lastError": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "The last refresh failure for your connection, if any. Never contains a token."
+                                  }
+                                },
+                                "required": [
+                                  "status",
+                                  "issuer",
+                                  "grantedScopes",
+                                  "requiredScopes",
+                                  "expiresAt",
+                                  "authorizedAt",
+                                  "lastError"
+                                ],
+                                "additionalProperties": false,
+                                "nullable": true,
+                                "description": "For the credential-value field of a service that leaves its OAuth sign-in to members: your connection's status, or null if you haven't connected. Null for every other field."
                               }
                             },
                             "required": [
                               "field",
                               "isSet",
                               "updatedAt",
-                              "variableReferences"
+                              "variableReferences",
+                              "oauth"
                             ],
                             "additionalProperties": false
                           },
@@ -179342,7 +179614,7 @@
                   "csr": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 4096
+                    "maxLength": 131072
                   },
                   "attributes": {
                     "type": "object",
@@ -181250,7 +181522,7 @@
                       "csr": {
                         "type": "string",
                         "minLength": 1,
-                        "maxLength": 4096,
+                        "maxLength": 131072,
                         "description": "A PEM-encoded certificate signing request to renew from. Its subject, key and extensions take precedence, so only TTL and basic constraints may be set alongside it."
                       },
                       "attributes": {
@@ -299919,7 +300191,7 @@
                   "csr": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 3000,
+                    "maxLength": 131072,
                     "description": "The CSR to be used to sign the certificate."
                   }
                 },
@@ -1214080,7 +1214352,7 @@
                   "csr": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 4096
+                    "maxLength": 131072
                   }
                 },
                 "required": [
