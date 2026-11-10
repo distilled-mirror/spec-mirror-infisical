@@ -136246,6 +136246,9 @@
                           "hasPrivateKey": {
                             "type": "boolean"
                           },
+                          "canRenewFromCsr": {
+                            "type": "boolean"
+                          },
                           "caName": {
                             "type": "string",
                             "nullable": true
@@ -136274,7 +136277,8 @@
                           "notBefore",
                           "notAfter",
                           "projectId",
-                          "hasPrivateKey"
+                          "hasPrivateKey",
+                          "canRenewFromCsr"
                         ],
                         "additionalProperties": false
                       }
@@ -182760,6 +182764,10 @@
                           "type": "boolean",
                           "description": "Whether Infisical holds the private key for this certificate."
                         },
+                        "canRenewFromCsr": {
+                          "type": "boolean",
+                          "description": "Whether Infisical can renew this certificate on its existing key pair from a CSR it holds, without its private key: a CSR the request that produced it carried or one supplied at import, a certificate enrolled through the API, and a profile whose certificate authority issues from a CSR. When true, renewing with renewalKeySource 'reuse' renews from that CSR, and auto-renewal can be turned on."
+                        },
                         "latestRenewalCertificateId": {
                           "type": "string",
                           "format": "uuid",
@@ -182801,7 +182809,8 @@
                         "commonName",
                         "notBefore",
                         "notAfter",
-                        "hasPrivateKey"
+                        "hasPrivateKey",
+                        "canRenewFromCsr"
                       ],
                       "additionalProperties": false
                     }
@@ -184305,6 +184314,12 @@
                     "type": "string",
                     "minLength": 1,
                     "description": "Optional PEM-encoded chain of intermediate certificates."
+                  },
+                  "csr": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 131072,
+                    "description": "Optional PEM-encoded certificate signing request generated from the certificate's private key, typically the one it was issued from. Lets renewal reuse the existing key pair, including automatic renewal, without Infisical holding the private key. Requires a profile backed by a certificate authority that issues from a CSR (not AWS Certificate Manager). The CSR must carry the certificate's public key, can't name anything the certificate doesn't, and must satisfy the profile's certificate policy."
                   },
                   "friendlyName": {
                     "type": "string",
@@ -363520,7 +363535,7 @@
                   },
                   "description": {
                     "type": "string",
-                    "maxLength": 500,
+                    "maxLength": 255,
                     "description": "An optional description of the key."
                   },
                   "keyUsage": {
@@ -364264,7 +364279,7 @@
                   },
                   "description": {
                     "type": "string",
-                    "maxLength": 500,
+                    "maxLength": 255,
                     "description": "The updated description of this key."
                   },
                   "hasDeleteProtection": {
