@@ -21599,6 +21599,63 @@
                           "inputs"
                         ],
                         "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "openrouter"
+                            ]
+                          },
+                          "inputs": {
+                            "type": "object",
+                            "properties": {
+                              "managementKey": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 512,
+                                "description": "OpenRouter management API key used to create and delete the API keys issued for each lease."
+                              },
+                              "workspaceId": {
+                                "type": "string",
+                                "maxLength": 100,
+                                "nullable": true,
+                                "description": "ID of the OpenRouter workspace to create keys in. Defaults to the management key's default workspace."
+                              },
+                              "limit": {
+                                "type": "string",
+                                "maxLength": 32,
+                                "nullable": true,
+                                "description": "Spending limit in USD applied to each created API key, as a decimal string such as \"2.5\"."
+                              },
+                              "limitReset": {
+                                "type": "string",
+                                "enum": [
+                                  "daily",
+                                  "weekly",
+                                  "monthly"
+                                ],
+                                "nullable": true,
+                                "description": "How often the spending limit resets. Leave unset for a limit that never resets."
+                              },
+                              "includeByokInLimit": {
+                                "type": "boolean",
+                                "description": "Whether bring-your-own-key usage counts toward the spending limit."
+                              }
+                            },
+                            "required": [
+                              "managementKey"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "inputs"
+                        ],
+                        "additionalProperties": false
                       }
                     ],
                     "description": "The type of dynamic secret."
@@ -28469,6 +28526,7 @@
     },
     "/api/v1/cert-manager/acme/profiles/{profileId}/directory": {
       "get": {
+        "operationId": "getAcmeDirectory",
         "tags": [
           "PKI ACME"
         ],
@@ -28541,6 +28599,7 @@
     },
     "/api/v1/cert-manager/acme/profiles/{profileId}/new-nonce": {
       "get": {
+        "operationId": "getAcmeNewNonce",
         "tags": [
           "PKI ACME"
         ],
@@ -28574,6 +28633,7 @@
     },
     "/api/v1/cert-manager/acme/profiles/{profileId}/new-account": {
       "post": {
+        "operationId": "createAcmeAccount",
         "tags": [
           "PKI ACME"
         ],
@@ -28650,6 +28710,7 @@
     },
     "/api/v1/cert-manager/acme/profiles/{profileId}/accounts/{accountId}": {
       "post": {
+        "operationId": "deactivateAcmeAccount",
         "tags": [
           "PKI ACME"
         ],
@@ -28725,6 +28786,7 @@
     },
     "/api/v1/cert-manager/acme/profiles/{profileId}/new-order": {
       "post": {
+        "operationId": "createAcmeOrder",
         "tags": [
           "PKI ACME"
         ],
@@ -28842,6 +28904,7 @@
     },
     "/api/v1/cert-manager/acme/profiles/{profileId}/orders/{orderId}": {
       "post": {
+        "operationId": "getAcmeOrder",
         "tags": [
           "PKI ACME"
         ],
@@ -28968,6 +29031,7 @@
     },
     "/api/v1/cert-manager/acme/profiles/{profileId}/orders/{orderId}/finalize": {
       "post": {
+        "operationId": "finalizeAcmeOrder",
         "tags": [
           "PKI ACME"
         ],
@@ -29094,6 +29158,7 @@
     },
     "/api/v1/cert-manager/acme/profiles/{profileId}/accounts/{accountId}/orders": {
       "post": {
+        "operationId": "listAcmeOrders",
         "tags": [
           "PKI ACME"
         ],
@@ -29172,6 +29237,7 @@
     },
     "/api/v1/cert-manager/acme/profiles/{profileId}/orders/{orderId}/certificate": {
       "post": {
+        "operationId": "downloadAcmeCertificate",
         "tags": [
           "PKI ACME"
         ],
@@ -29239,6 +29305,7 @@
     },
     "/api/v1/cert-manager/acme/profiles/{profileId}/authorizations/{authzId}": {
       "post": {
+        "operationId": "getAcmeAuthorization",
         "tags": [
           "PKI ACME"
         ],
@@ -29382,10 +29449,38 @@
     },
     "/api/v1/cert-manager/acme/profiles/{profileId}/authorizations/{authzId}/challenges/{challengeId}": {
       "post": {
+        "operationId": "respondToAcmeChallenge",
         "tags": [
           "PKI ACME"
         ],
         "description": "ACME Respond to Challenge - let ACME server know challenge is ready",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "protected": {
+                    "type": "string"
+                  },
+                  "payload": {
+                    "type": "string"
+                  },
+                  "signature": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "protected",
+                  "payload",
+                  "signature"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
         "parameters": [
           {
             "schema": {
@@ -29480,6 +29575,7 @@
     },
     "/api/v1/cert-manager/acme/applications/{applicationId}/profiles/{profileId}/directory": {
       "get": {
+        "operationId": "getAcmeApplicationDirectory",
         "tags": [
           "PKI ACME"
         ],
@@ -29561,6 +29657,7 @@
     },
     "/api/v1/cert-manager/acme/applications/{applicationId}/profiles/{profileId}/new-account": {
       "post": {
+        "operationId": "createAcmeApplicationAccount",
         "tags": [
           "PKI ACME"
         ],
