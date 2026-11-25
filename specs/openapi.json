@@ -142573,7 +142573,7 @@
                     },
                     {
                       "type": "string",
-                      "maxLength": 18900
+                      "maxLength": 18972
                     }
                   ]
                 },
@@ -143323,11 +143323,14 @@
                           "update-alert",
                           "delete-alert",
                           "test-alert-channel",
+                          "create-audit-log-stream",
+                          "update-audit-log-stream",
+                          "delete-audit-log-stream",
                           "permission-denied",
                           "update-audit-log-settings"
                         ]
                       },
-                      "maxItems": 738
+                      "maxItems": 741
                     }
                   ]
                 }
@@ -146285,6 +146288,10 @@
                   "organization": {
                     "type": "string",
                     "minLength": 1
+                  },
+                  "activationToken": {
+                    "type": "string",
+                    "maxLength": 256
                   }
                 },
                 "required": [
@@ -188433,6 +188440,7 @@
     },
     "/api/v1/cert-manager/ca/internal/{caId}/certificate": {
       "post": {
+        "operationId": "generateCaCertificate",
         "tags": [
           "PKI Certificate Authorities"
         ],
@@ -189255,6 +189263,7 @@
     },
     "/api/v1/cert-manager/ca/internal/{caId}/certificate/{certId}": {
       "get": {
+        "operationId": "getCaCertificateById",
         "tags": [
           "PKI Certificate Authorities"
         ],
@@ -216508,19 +216517,22 @@
                           "type": "array",
                           "items": {
                             "type": "string"
-                          }
+                          },
+                          "description": "SAN values this type may take, with * as a wildcard. {{request.commonName}} as the whole value allows a SAN equal to the request's common name. DNS names and email addresses ignore case, and in a URI with \"://\" only the scheme and authority ignore case. {{request.commonName}} matches an IP address by value. Any other value containing \"{{\" is refused. The requester sets the common name, so this allows any value the policy's common name rule allows, unless a denied value matches it."
                         },
                         "required": {
                           "type": "array",
                           "items": {
                             "type": "string"
-                          }
+                          },
+                          "description": "SAN values the request must include, with * as a wildcard. {{request.commonName}} as the whole value requires a SAN of this type equal to the request's common name. DNS names and email addresses ignore case, and in a URI with \"://\" only the scheme and authority ignore case. {{request.commonName}} matches an IP address by value. Any other value containing \"{{\" is refused. If it lists {{request.commonName}}, a request without a common name is refused."
                         },
                         "denied": {
                           "type": "array",
                           "items": {
                             "type": "string"
-                          }
+                          },
+                          "description": "SAN values that are rejected, with * as a wildcard. {{request.commonName}} as the whole value rejects a SAN of this type equal to the request's common name. DNS names and email addresses ignore case, and in a URI with \"://\" only the scheme and authority ignore case. {{request.commonName}} matches an IP address by value. Any other value containing \"{{\" is refused."
                         }
                       },
                       "required": [
@@ -218760,19 +218772,22 @@
                           "type": "array",
                           "items": {
                             "type": "string"
-                          }
+                          },
+                          "description": "SAN values this type may take, with * as a wildcard. {{request.commonName}} as the whole value allows a SAN equal to the request's common name. DNS names and email addresses ignore case, and in a URI with \"://\" only the scheme and authority ignore case. {{request.commonName}} matches an IP address by value. Any other value containing \"{{\" is refused. The requester sets the common name, so this allows any value the policy's common name rule allows, unless a denied value matches it."
                         },
                         "required": {
                           "type": "array",
                           "items": {
                             "type": "string"
-                          }
+                          },
+                          "description": "SAN values the request must include, with * as a wildcard. {{request.commonName}} as the whole value requires a SAN of this type equal to the request's common name. DNS names and email addresses ignore case, and in a URI with \"://\" only the scheme and authority ignore case. {{request.commonName}} matches an IP address by value. Any other value containing \"{{\" is refused. If it lists {{request.commonName}}, a request without a common name is refused."
                         },
                         "denied": {
                           "type": "array",
                           "items": {
                             "type": "string"
-                          }
+                          },
+                          "description": "SAN values that are rejected, with * as a wildcard. {{request.commonName}} as the whole value rejects a SAN of this type equal to the request's common name. DNS names and email addresses ignore case, and in a URI with \"://\" only the scheme and authority ignore case. {{request.commonName}} matches an IP address by value. Any other value containing \"{{\" is refused."
                         }
                       },
                       "required": [
@@ -220497,7 +220512,8 @@
                             "value"
                           ],
                           "additionalProperties": false
-                        }
+                        },
+                        "description": "Default subject alternative names. Fixed values are added only when the request has no CSR and lists no SANs. An entry whose value is {{request.commonName}} adds the request's common name as a SAN of the entry's type when the request, or its CSR, lists no SANs. Nothing is added for it when there is no common name, when the common name is not valid for that SAN type, or when the certificate authority signs the CSR as sent (Microsoft AD CS, Venafi TPP). Through ACME, only the common name in the client's CSR is used, and only as a DNS name or IP address. Any other value containing \"{{\" is refused."
                       },
                       "domainComponents": {
                         "type": "array",
@@ -222899,7 +222915,8 @@
                             "value"
                           ],
                           "additionalProperties": false
-                        }
+                        },
+                        "description": "Default subject alternative names. Fixed values are added only when the request has no CSR and lists no SANs. An entry whose value is {{request.commonName}} adds the request's common name as a SAN of the entry's type when the request, or its CSR, lists no SANs. Nothing is added for it when there is no common name, when the common name is not valid for that SAN type, or when the certificate authority signs the CSR as sent (Microsoft AD CS, Venafi TPP). Through ACME, only the common name in the client's CSR is used, and only as a DNS name or IP address. Any other value containing \"{{\" is refused."
                       },
                       "domainComponents": {
                         "type": "array",
@@ -322555,7 +322572,8 @@
                             "value"
                           ],
                           "additionalProperties": false
-                        }
+                        },
+                        "description": "Default subject alternative names. Fixed values are added only when the request has no CSR and lists no SANs. An entry whose value is {{request.commonName}} adds the request's common name as a SAN of the entry's type when the request, or its CSR, lists no SANs. Nothing is added for it when there is no common name, when the common name is not valid for that SAN type, or when the certificate authority signs the CSR as sent (Microsoft AD CS, Venafi TPP). Through ACME, only the common name in the client's CSR is used, and only as a DNS name or IP address. Any other value containing \"{{\" is refused."
                       },
                       "domainComponents": {
                         "type": "array",
@@ -324974,7 +324992,8 @@
                             "value"
                           ],
                           "additionalProperties": false
-                        }
+                        },
+                        "description": "Default subject alternative names. Fixed values are added only when the request has no CSR and lists no SANs. An entry whose value is {{request.commonName}} adds the request's common name as a SAN of the entry's type when the request, or its CSR, lists no SANs. Nothing is added for it when there is no common name, when the common name is not valid for that SAN type, or when the certificate authority signs the CSR as sent (Microsoft AD CS, Venafi TPP). Through ACME, only the common name in the client's CSR is used, and only as a DNS name or IP address. Any other value containing \"{{\" is refused."
                       },
                       "domainComponents": {
                         "type": "array",
@@ -401838,7 +401857,8 @@
                                 "items": {
                                   "type": "string",
                                   "enum": [
-                                    "service-account-impersonation"
+                                    "service-account-impersonation",
+                                    "workload-identity-federation"
                                   ]
                                 }
                               }
@@ -406565,6 +406585,211 @@
                             ],
                             "additionalProperties": false,
                             "title": "GCP (Service Account Impersonation)"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "description": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "version": {
+                                "type": "number",
+                                "default": 1
+                              },
+                              "orgId": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "updatedAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "isPlatformManagedCredentials": {
+                                "type": "boolean",
+                                "default": false,
+                                "nullable": true
+                              },
+                              "gatewayId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "nullable": true
+                              },
+                              "projectId": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "isAutoRotationEnabled": {
+                                "type": "boolean",
+                                "default": false
+                              },
+                              "gatewayPoolId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "nullable": true
+                              },
+                              "rotation": {
+                                "type": "object",
+                                "properties": {
+                                  "lastRotationMessage": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "The message from the last rotation attempt."
+                                  },
+                                  "rotationInterval": {
+                                    "type": "number",
+                                    "description": "The interval in days between credential rotations."
+                                  },
+                                  "nextRotationAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "nullable": true,
+                                    "description": "The next scheduled rotation time."
+                                  },
+                                  "rotationStatus": {
+                                    "type": "string",
+                                    "enum": [
+                                      "success",
+                                      "failed"
+                                    ],
+                                    "description": "The status of the last rotation attempt."
+                                  },
+                                  "rotateAtUtc": {
+                                    "type": "object",
+                                    "properties": {
+                                      "hours": {
+                                        "type": "number",
+                                        "description": "The hour (0-23) at which to rotate."
+                                      },
+                                      "minutes": {
+                                        "type": "number",
+                                        "description": "The minute (0-59) at which to rotate."
+                                      }
+                                    },
+                                    "required": [
+                                      "hours",
+                                      "minutes"
+                                    ],
+                                    "additionalProperties": false,
+                                    "description": "The UTC time of day at which rotation should occur."
+                                  }
+                                },
+                                "required": [
+                                  "rotationInterval",
+                                  "rotationStatus",
+                                  "rotateAtUtc"
+                                ],
+                                "additionalProperties": false,
+                                "description": "The credential rotation configuration, if configured."
+                              },
+                              "credentialsHash": {
+                                "type": "string"
+                              },
+                              "project": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  },
+                                  "slug": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "id",
+                                  "type",
+                                  "slug"
+                                ],
+                                "additionalProperties": false,
+                                "nullable": true
+                              },
+                              "app": {
+                                "type": "string",
+                                "enum": [
+                                  "gcp"
+                                ]
+                              },
+                              "method": {
+                                "type": "string",
+                                "enum": [
+                                  "workload-identity-federation"
+                                ]
+                              },
+                              "credentials": {
+                                "type": "object",
+                                "properties": {
+                                  "workloadIdentityProvider": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 255,
+                                    "description": "The full resource name of the GCP workload identity pool provider that trusts this organization's Infisical OIDC issuer, e.g. projects/123456789/locations/global/workloadIdentityPools/infisical/providers/infisical."
+                                  },
+                                  "serviceAccountEmail": {
+                                    "type": "string",
+                                    "format": "email",
+                                    "maxLength": 254,
+                                    "description": "The GCP service account to impersonate with the federated token. Omit it to use the federated token directly, with GCP roles granted to the connection's principal."
+                                  },
+                                  "federatedCredential": {
+                                    "type": "object",
+                                    "properties": {
+                                      "issuerUrl": {
+                                        "type": "string",
+                                        "nullable": true
+                                      },
+                                      "subjectIdentifier": {
+                                        "type": "string"
+                                      },
+                                      "audience": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "issuerUrl",
+                                      "subjectIdentifier",
+                                      "audience"
+                                    ],
+                                    "additionalProperties": false,
+                                    "description": "The values to configure on the GCP workload identity pool provider and IAM binding. The issuer is null when SITE_URL is not set."
+                                  }
+                                },
+                                "required": [
+                                  "workloadIdentityProvider",
+                                  "federatedCredential"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "orgId",
+                              "createdAt",
+                              "updatedAt",
+                              "app",
+                              "method",
+                              "credentials"
+                            ],
+                            "additionalProperties": false,
+                            "title": "GCP (Workload Identity Federation)"
                           },
                           {
                             "type": "object",
@@ -441539,6 +441764,211 @@
                             ],
                             "additionalProperties": false,
                             "title": "GCP (Service Account Impersonation)"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "description": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "version": {
+                                "type": "number",
+                                "default": 1
+                              },
+                              "orgId": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "updatedAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "isPlatformManagedCredentials": {
+                                "type": "boolean",
+                                "default": false,
+                                "nullable": true
+                              },
+                              "gatewayId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "nullable": true
+                              },
+                              "projectId": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "isAutoRotationEnabled": {
+                                "type": "boolean",
+                                "default": false
+                              },
+                              "gatewayPoolId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "nullable": true
+                              },
+                              "rotation": {
+                                "type": "object",
+                                "properties": {
+                                  "lastRotationMessage": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "The message from the last rotation attempt."
+                                  },
+                                  "rotationInterval": {
+                                    "type": "number",
+                                    "description": "The interval in days between credential rotations."
+                                  },
+                                  "nextRotationAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "nullable": true,
+                                    "description": "The next scheduled rotation time."
+                                  },
+                                  "rotationStatus": {
+                                    "type": "string",
+                                    "enum": [
+                                      "success",
+                                      "failed"
+                                    ],
+                                    "description": "The status of the last rotation attempt."
+                                  },
+                                  "rotateAtUtc": {
+                                    "type": "object",
+                                    "properties": {
+                                      "hours": {
+                                        "type": "number",
+                                        "description": "The hour (0-23) at which to rotate."
+                                      },
+                                      "minutes": {
+                                        "type": "number",
+                                        "description": "The minute (0-59) at which to rotate."
+                                      }
+                                    },
+                                    "required": [
+                                      "hours",
+                                      "minutes"
+                                    ],
+                                    "additionalProperties": false,
+                                    "description": "The UTC time of day at which rotation should occur."
+                                  }
+                                },
+                                "required": [
+                                  "rotationInterval",
+                                  "rotationStatus",
+                                  "rotateAtUtc"
+                                ],
+                                "additionalProperties": false,
+                                "description": "The credential rotation configuration, if configured."
+                              },
+                              "credentialsHash": {
+                                "type": "string"
+                              },
+                              "project": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  },
+                                  "slug": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "id",
+                                  "type",
+                                  "slug"
+                                ],
+                                "additionalProperties": false,
+                                "nullable": true
+                              },
+                              "app": {
+                                "type": "string",
+                                "enum": [
+                                  "gcp"
+                                ]
+                              },
+                              "method": {
+                                "type": "string",
+                                "enum": [
+                                  "workload-identity-federation"
+                                ]
+                              },
+                              "credentials": {
+                                "type": "object",
+                                "properties": {
+                                  "workloadIdentityProvider": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 255,
+                                    "description": "The full resource name of the GCP workload identity pool provider that trusts this organization's Infisical OIDC issuer, e.g. projects/123456789/locations/global/workloadIdentityPools/infisical/providers/infisical."
+                                  },
+                                  "serviceAccountEmail": {
+                                    "type": "string",
+                                    "format": "email",
+                                    "maxLength": 254,
+                                    "description": "The GCP service account to impersonate with the federated token. Omit it to use the federated token directly, with GCP roles granted to the connection's principal."
+                                  },
+                                  "federatedCredential": {
+                                    "type": "object",
+                                    "properties": {
+                                      "issuerUrl": {
+                                        "type": "string",
+                                        "nullable": true
+                                      },
+                                      "subjectIdentifier": {
+                                        "type": "string"
+                                      },
+                                      "audience": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "issuerUrl",
+                                      "subjectIdentifier",
+                                      "audience"
+                                    ],
+                                    "additionalProperties": false,
+                                    "description": "The values to configure on the GCP workload identity pool provider and IAM binding. The issuer is null when SITE_URL is not set."
+                                  }
+                                },
+                                "required": [
+                                  "workloadIdentityProvider",
+                                  "federatedCredential"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "orgId",
+                              "createdAt",
+                              "updatedAt",
+                              "app",
+                              "method",
+                              "credentials"
+                            ],
+                            "additionalProperties": false,
+                            "title": "GCP (Workload Identity Federation)"
                           }
                         ]
                       }
@@ -441788,10 +442218,52 @@
                                 "type": "string",
                                 "format": "email",
                                 "minLength": 1
+                              },
+                              "workloadIdentityProvider": {
+                                "not": {}
                               }
                             },
                             "required": [
                               "serviceAccountEmail"
+                            ],
+                            "additionalProperties": false,
+                            "description": "The credentials used to connect with GCP."
+                          }
+                        },
+                        "required": [
+                          "method",
+                          "credentials"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "method": {
+                            "type": "string",
+                            "enum": [
+                              "workload-identity-federation"
+                            ],
+                            "description": "The method used to authenticate with GCP."
+                          },
+                          "credentials": {
+                            "type": "object",
+                            "properties": {
+                              "workloadIdentityProvider": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 255,
+                                "description": "The full resource name of the GCP workload identity pool provider that trusts this organization's Infisical OIDC issuer, e.g. projects/123456789/locations/global/workloadIdentityPools/infisical/providers/infisical."
+                              },
+                              "serviceAccountEmail": {
+                                "type": "string",
+                                "format": "email",
+                                "maxLength": 254,
+                                "description": "The GCP service account to impersonate with the federated token. Omit it to use the federated token directly, with GCP roles granted to the connection's principal."
+                              }
+                            },
+                            "required": [
+                              "workloadIdentityProvider"
                             ],
                             "additionalProperties": false,
                             "description": "The credentials used to connect with GCP."
@@ -442065,6 +442537,211 @@
                           ],
                           "additionalProperties": false,
                           "title": "GCP (Service Account Impersonation)"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "version": {
+                              "type": "number",
+                              "default": 1
+                            },
+                            "orgId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "isPlatformManagedCredentials": {
+                              "type": "boolean",
+                              "default": false,
+                              "nullable": true
+                            },
+                            "gatewayId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "projectId": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "isAutoRotationEnabled": {
+                              "type": "boolean",
+                              "default": false
+                            },
+                            "gatewayPoolId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "rotation": {
+                              "type": "object",
+                              "properties": {
+                                "lastRotationMessage": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The message from the last rotation attempt."
+                                },
+                                "rotationInterval": {
+                                  "type": "number",
+                                  "description": "The interval in days between credential rotations."
+                                },
+                                "nextRotationAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "nullable": true,
+                                  "description": "The next scheduled rotation time."
+                                },
+                                "rotationStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "success",
+                                    "failed"
+                                  ],
+                                  "description": "The status of the last rotation attempt."
+                                },
+                                "rotateAtUtc": {
+                                  "type": "object",
+                                  "properties": {
+                                    "hours": {
+                                      "type": "number",
+                                      "description": "The hour (0-23) at which to rotate."
+                                    },
+                                    "minutes": {
+                                      "type": "number",
+                                      "description": "The minute (0-59) at which to rotate."
+                                    }
+                                  },
+                                  "required": [
+                                    "hours",
+                                    "minutes"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The UTC time of day at which rotation should occur."
+                                }
+                              },
+                              "required": [
+                                "rotationInterval",
+                                "rotationStatus",
+                                "rotateAtUtc"
+                              ],
+                              "additionalProperties": false,
+                              "description": "The credential rotation configuration, if configured."
+                            },
+                            "credentialsHash": {
+                              "type": "string"
+                            },
+                            "project": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "slug": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "id",
+                                "type",
+                                "slug"
+                              ],
+                              "additionalProperties": false,
+                              "nullable": true
+                            },
+                            "app": {
+                              "type": "string",
+                              "enum": [
+                                "gcp"
+                              ]
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "workload-identity-federation"
+                              ]
+                            },
+                            "credentials": {
+                              "type": "object",
+                              "properties": {
+                                "workloadIdentityProvider": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 255,
+                                  "description": "The full resource name of the GCP workload identity pool provider that trusts this organization's Infisical OIDC issuer, e.g. projects/123456789/locations/global/workloadIdentityPools/infisical/providers/infisical."
+                                },
+                                "serviceAccountEmail": {
+                                  "type": "string",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "description": "The GCP service account to impersonate with the federated token. Omit it to use the federated token directly, with GCP roles granted to the connection's principal."
+                                },
+                                "federatedCredential": {
+                                  "type": "object",
+                                  "properties": {
+                                    "issuerUrl": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "subjectIdentifier": {
+                                      "type": "string"
+                                    },
+                                    "audience": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "issuerUrl",
+                                    "subjectIdentifier",
+                                    "audience"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The values to configure on the GCP workload identity pool provider and IAM binding. The issuer is null when SITE_URL is not set."
+                                }
+                              },
+                              "required": [
+                                "workloadIdentityProvider",
+                                "federatedCredential"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "orgId",
+                            "createdAt",
+                            "updatedAt",
+                            "app",
+                            "method",
+                            "credentials"
+                          ],
+                          "additionalProperties": false,
+                          "title": "GCP (Workload Identity Federation)"
                         }
                       ]
                     }
@@ -442763,6 +443440,211 @@
                           ],
                           "additionalProperties": false,
                           "title": "GCP (Service Account Impersonation)"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "version": {
+                              "type": "number",
+                              "default": 1
+                            },
+                            "orgId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "isPlatformManagedCredentials": {
+                              "type": "boolean",
+                              "default": false,
+                              "nullable": true
+                            },
+                            "gatewayId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "projectId": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "isAutoRotationEnabled": {
+                              "type": "boolean",
+                              "default": false
+                            },
+                            "gatewayPoolId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "rotation": {
+                              "type": "object",
+                              "properties": {
+                                "lastRotationMessage": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The message from the last rotation attempt."
+                                },
+                                "rotationInterval": {
+                                  "type": "number",
+                                  "description": "The interval in days between credential rotations."
+                                },
+                                "nextRotationAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "nullable": true,
+                                  "description": "The next scheduled rotation time."
+                                },
+                                "rotationStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "success",
+                                    "failed"
+                                  ],
+                                  "description": "The status of the last rotation attempt."
+                                },
+                                "rotateAtUtc": {
+                                  "type": "object",
+                                  "properties": {
+                                    "hours": {
+                                      "type": "number",
+                                      "description": "The hour (0-23) at which to rotate."
+                                    },
+                                    "minutes": {
+                                      "type": "number",
+                                      "description": "The minute (0-59) at which to rotate."
+                                    }
+                                  },
+                                  "required": [
+                                    "hours",
+                                    "minutes"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The UTC time of day at which rotation should occur."
+                                }
+                              },
+                              "required": [
+                                "rotationInterval",
+                                "rotationStatus",
+                                "rotateAtUtc"
+                              ],
+                              "additionalProperties": false,
+                              "description": "The credential rotation configuration, if configured."
+                            },
+                            "credentialsHash": {
+                              "type": "string"
+                            },
+                            "project": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "slug": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "id",
+                                "type",
+                                "slug"
+                              ],
+                              "additionalProperties": false,
+                              "nullable": true
+                            },
+                            "app": {
+                              "type": "string",
+                              "enum": [
+                                "gcp"
+                              ]
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "workload-identity-federation"
+                              ]
+                            },
+                            "credentials": {
+                              "type": "object",
+                              "properties": {
+                                "workloadIdentityProvider": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 255,
+                                  "description": "The full resource name of the GCP workload identity pool provider that trusts this organization's Infisical OIDC issuer, e.g. projects/123456789/locations/global/workloadIdentityPools/infisical/providers/infisical."
+                                },
+                                "serviceAccountEmail": {
+                                  "type": "string",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "description": "The GCP service account to impersonate with the federated token. Omit it to use the federated token directly, with GCP roles granted to the connection's principal."
+                                },
+                                "federatedCredential": {
+                                  "type": "object",
+                                  "properties": {
+                                    "issuerUrl": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "subjectIdentifier": {
+                                      "type": "string"
+                                    },
+                                    "audience": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "issuerUrl",
+                                    "subjectIdentifier",
+                                    "audience"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The values to configure on the GCP workload identity pool provider and IAM binding. The issuer is null when SITE_URL is not set."
+                                }
+                              },
+                              "required": [
+                                "workloadIdentityProvider",
+                                "federatedCredential"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "orgId",
+                            "createdAt",
+                            "updatedAt",
+                            "app",
+                            "method",
+                            "credentials"
+                          ],
+                          "additionalProperties": false,
+                          "title": "GCP (Workload Identity Federation)"
                         }
                       ]
                     }
@@ -442996,18 +443878,46 @@
                     "type": "object",
                     "properties": {
                       "credentials": {
-                        "type": "object",
-                        "properties": {
-                          "serviceAccountEmail": {
-                            "type": "string",
-                            "format": "email",
-                            "minLength": 1
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "workloadIdentityProvider": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 255,
+                                "description": "The full resource name of the GCP workload identity pool provider that trusts this organization's Infisical OIDC issuer, e.g. projects/123456789/locations/global/workloadIdentityPools/infisical/providers/infisical."
+                              },
+                              "serviceAccountEmail": {
+                                "type": "string",
+                                "format": "email",
+                                "maxLength": 254,
+                                "description": "The GCP service account to impersonate with the federated token. Omit it to use the federated token directly, with GCP roles granted to the connection's principal."
+                              }
+                            },
+                            "required": [
+                              "workloadIdentityProvider"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "serviceAccountEmail": {
+                                "type": "string",
+                                "format": "email",
+                                "minLength": 1
+                              },
+                              "workloadIdentityProvider": {
+                                "not": {}
+                              }
+                            },
+                            "required": [
+                              "serviceAccountEmail"
+                            ],
+                            "additionalProperties": false
                           }
-                        },
-                        "required": [
-                          "serviceAccountEmail"
                         ],
-                        "additionalProperties": false,
                         "description": "The credentials used to connect with GCP."
                       }
                     }
@@ -443277,6 +444187,211 @@
                           ],
                           "additionalProperties": false,
                           "title": "GCP (Service Account Impersonation)"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "version": {
+                              "type": "number",
+                              "default": 1
+                            },
+                            "orgId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "isPlatformManagedCredentials": {
+                              "type": "boolean",
+                              "default": false,
+                              "nullable": true
+                            },
+                            "gatewayId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "projectId": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "isAutoRotationEnabled": {
+                              "type": "boolean",
+                              "default": false
+                            },
+                            "gatewayPoolId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "rotation": {
+                              "type": "object",
+                              "properties": {
+                                "lastRotationMessage": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The message from the last rotation attempt."
+                                },
+                                "rotationInterval": {
+                                  "type": "number",
+                                  "description": "The interval in days between credential rotations."
+                                },
+                                "nextRotationAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "nullable": true,
+                                  "description": "The next scheduled rotation time."
+                                },
+                                "rotationStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "success",
+                                    "failed"
+                                  ],
+                                  "description": "The status of the last rotation attempt."
+                                },
+                                "rotateAtUtc": {
+                                  "type": "object",
+                                  "properties": {
+                                    "hours": {
+                                      "type": "number",
+                                      "description": "The hour (0-23) at which to rotate."
+                                    },
+                                    "minutes": {
+                                      "type": "number",
+                                      "description": "The minute (0-59) at which to rotate."
+                                    }
+                                  },
+                                  "required": [
+                                    "hours",
+                                    "minutes"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The UTC time of day at which rotation should occur."
+                                }
+                              },
+                              "required": [
+                                "rotationInterval",
+                                "rotationStatus",
+                                "rotateAtUtc"
+                              ],
+                              "additionalProperties": false,
+                              "description": "The credential rotation configuration, if configured."
+                            },
+                            "credentialsHash": {
+                              "type": "string"
+                            },
+                            "project": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "slug": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "id",
+                                "type",
+                                "slug"
+                              ],
+                              "additionalProperties": false,
+                              "nullable": true
+                            },
+                            "app": {
+                              "type": "string",
+                              "enum": [
+                                "gcp"
+                              ]
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "workload-identity-federation"
+                              ]
+                            },
+                            "credentials": {
+                              "type": "object",
+                              "properties": {
+                                "workloadIdentityProvider": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 255,
+                                  "description": "The full resource name of the GCP workload identity pool provider that trusts this organization's Infisical OIDC issuer, e.g. projects/123456789/locations/global/workloadIdentityPools/infisical/providers/infisical."
+                                },
+                                "serviceAccountEmail": {
+                                  "type": "string",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "description": "The GCP service account to impersonate with the federated token. Omit it to use the federated token directly, with GCP roles granted to the connection's principal."
+                                },
+                                "federatedCredential": {
+                                  "type": "object",
+                                  "properties": {
+                                    "issuerUrl": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "subjectIdentifier": {
+                                      "type": "string"
+                                    },
+                                    "audience": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "issuerUrl",
+                                    "subjectIdentifier",
+                                    "audience"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The values to configure on the GCP workload identity pool provider and IAM binding. The issuer is null when SITE_URL is not set."
+                                }
+                              },
+                              "required": [
+                                "workloadIdentityProvider",
+                                "federatedCredential"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "orgId",
+                            "createdAt",
+                            "updatedAt",
+                            "app",
+                            "method",
+                            "credentials"
+                          ],
+                          "additionalProperties": false,
+                          "title": "GCP (Workload Identity Federation)"
                         }
                       ]
                     }
@@ -443687,6 +444802,211 @@
                           ],
                           "additionalProperties": false,
                           "title": "GCP (Service Account Impersonation)"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "version": {
+                              "type": "number",
+                              "default": 1
+                            },
+                            "orgId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "isPlatformManagedCredentials": {
+                              "type": "boolean",
+                              "default": false,
+                              "nullable": true
+                            },
+                            "gatewayId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "projectId": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "isAutoRotationEnabled": {
+                              "type": "boolean",
+                              "default": false
+                            },
+                            "gatewayPoolId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "rotation": {
+                              "type": "object",
+                              "properties": {
+                                "lastRotationMessage": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The message from the last rotation attempt."
+                                },
+                                "rotationInterval": {
+                                  "type": "number",
+                                  "description": "The interval in days between credential rotations."
+                                },
+                                "nextRotationAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "nullable": true,
+                                  "description": "The next scheduled rotation time."
+                                },
+                                "rotationStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "success",
+                                    "failed"
+                                  ],
+                                  "description": "The status of the last rotation attempt."
+                                },
+                                "rotateAtUtc": {
+                                  "type": "object",
+                                  "properties": {
+                                    "hours": {
+                                      "type": "number",
+                                      "description": "The hour (0-23) at which to rotate."
+                                    },
+                                    "minutes": {
+                                      "type": "number",
+                                      "description": "The minute (0-59) at which to rotate."
+                                    }
+                                  },
+                                  "required": [
+                                    "hours",
+                                    "minutes"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The UTC time of day at which rotation should occur."
+                                }
+                              },
+                              "required": [
+                                "rotationInterval",
+                                "rotationStatus",
+                                "rotateAtUtc"
+                              ],
+                              "additionalProperties": false,
+                              "description": "The credential rotation configuration, if configured."
+                            },
+                            "credentialsHash": {
+                              "type": "string"
+                            },
+                            "project": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "slug": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "id",
+                                "type",
+                                "slug"
+                              ],
+                              "additionalProperties": false,
+                              "nullable": true
+                            },
+                            "app": {
+                              "type": "string",
+                              "enum": [
+                                "gcp"
+                              ]
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "workload-identity-federation"
+                              ]
+                            },
+                            "credentials": {
+                              "type": "object",
+                              "properties": {
+                                "workloadIdentityProvider": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 255,
+                                  "description": "The full resource name of the GCP workload identity pool provider that trusts this organization's Infisical OIDC issuer, e.g. projects/123456789/locations/global/workloadIdentityPools/infisical/providers/infisical."
+                                },
+                                "serviceAccountEmail": {
+                                  "type": "string",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "description": "The GCP service account to impersonate with the federated token. Omit it to use the federated token directly, with GCP roles granted to the connection's principal."
+                                },
+                                "federatedCredential": {
+                                  "type": "object",
+                                  "properties": {
+                                    "issuerUrl": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "subjectIdentifier": {
+                                      "type": "string"
+                                    },
+                                    "audience": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "issuerUrl",
+                                    "subjectIdentifier",
+                                    "audience"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The values to configure on the GCP workload identity pool provider and IAM binding. The issuer is null when SITE_URL is not set."
+                                }
+                              },
+                              "required": [
+                                "workloadIdentityProvider",
+                                "federatedCredential"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "orgId",
+                            "createdAt",
+                            "updatedAt",
+                            "app",
+                            "method",
+                            "credentials"
+                          ],
+                          "additionalProperties": false,
+                          "title": "GCP (Workload Identity Federation)"
                         }
                       ]
                     }
@@ -444108,6 +445428,211 @@
                           ],
                           "additionalProperties": false,
                           "title": "GCP (Service Account Impersonation)"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "version": {
+                              "type": "number",
+                              "default": 1
+                            },
+                            "orgId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "isPlatformManagedCredentials": {
+                              "type": "boolean",
+                              "default": false,
+                              "nullable": true
+                            },
+                            "gatewayId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "projectId": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "isAutoRotationEnabled": {
+                              "type": "boolean",
+                              "default": false
+                            },
+                            "gatewayPoolId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "rotation": {
+                              "type": "object",
+                              "properties": {
+                                "lastRotationMessage": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The message from the last rotation attempt."
+                                },
+                                "rotationInterval": {
+                                  "type": "number",
+                                  "description": "The interval in days between credential rotations."
+                                },
+                                "nextRotationAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "nullable": true,
+                                  "description": "The next scheduled rotation time."
+                                },
+                                "rotationStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "success",
+                                    "failed"
+                                  ],
+                                  "description": "The status of the last rotation attempt."
+                                },
+                                "rotateAtUtc": {
+                                  "type": "object",
+                                  "properties": {
+                                    "hours": {
+                                      "type": "number",
+                                      "description": "The hour (0-23) at which to rotate."
+                                    },
+                                    "minutes": {
+                                      "type": "number",
+                                      "description": "The minute (0-59) at which to rotate."
+                                    }
+                                  },
+                                  "required": [
+                                    "hours",
+                                    "minutes"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The UTC time of day at which rotation should occur."
+                                }
+                              },
+                              "required": [
+                                "rotationInterval",
+                                "rotationStatus",
+                                "rotateAtUtc"
+                              ],
+                              "additionalProperties": false,
+                              "description": "The credential rotation configuration, if configured."
+                            },
+                            "credentialsHash": {
+                              "type": "string"
+                            },
+                            "project": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "slug": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "id",
+                                "type",
+                                "slug"
+                              ],
+                              "additionalProperties": false,
+                              "nullable": true
+                            },
+                            "app": {
+                              "type": "string",
+                              "enum": [
+                                "gcp"
+                              ]
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "workload-identity-federation"
+                              ]
+                            },
+                            "credentials": {
+                              "type": "object",
+                              "properties": {
+                                "workloadIdentityProvider": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 255,
+                                  "description": "The full resource name of the GCP workload identity pool provider that trusts this organization's Infisical OIDC issuer, e.g. projects/123456789/locations/global/workloadIdentityPools/infisical/providers/infisical."
+                                },
+                                "serviceAccountEmail": {
+                                  "type": "string",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "description": "The GCP service account to impersonate with the federated token. Omit it to use the federated token directly, with GCP roles granted to the connection's principal."
+                                },
+                                "federatedCredential": {
+                                  "type": "object",
+                                  "properties": {
+                                    "issuerUrl": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "subjectIdentifier": {
+                                      "type": "string"
+                                    },
+                                    "audience": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "issuerUrl",
+                                    "subjectIdentifier",
+                                    "audience"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The values to configure on the GCP workload identity pool provider and IAM binding. The issuer is null when SITE_URL is not set."
+                                }
+                              },
+                              "required": [
+                                "workloadIdentityProvider",
+                                "federatedCredential"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "orgId",
+                            "createdAt",
+                            "updatedAt",
+                            "app",
+                            "method",
+                            "credentials"
+                          ],
+                          "additionalProperties": false,
+                          "title": "GCP (Workload Identity Federation)"
                         }
                       ]
                     }
@@ -444520,6 +446045,211 @@
                           ],
                           "additionalProperties": false,
                           "title": "GCP (Service Account Impersonation)"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "version": {
+                              "type": "number",
+                              "default": 1
+                            },
+                            "orgId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "isPlatformManagedCredentials": {
+                              "type": "boolean",
+                              "default": false,
+                              "nullable": true
+                            },
+                            "gatewayId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "projectId": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "isAutoRotationEnabled": {
+                              "type": "boolean",
+                              "default": false
+                            },
+                            "gatewayPoolId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "rotation": {
+                              "type": "object",
+                              "properties": {
+                                "lastRotationMessage": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The message from the last rotation attempt."
+                                },
+                                "rotationInterval": {
+                                  "type": "number",
+                                  "description": "The interval in days between credential rotations."
+                                },
+                                "nextRotationAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "nullable": true,
+                                  "description": "The next scheduled rotation time."
+                                },
+                                "rotationStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "success",
+                                    "failed"
+                                  ],
+                                  "description": "The status of the last rotation attempt."
+                                },
+                                "rotateAtUtc": {
+                                  "type": "object",
+                                  "properties": {
+                                    "hours": {
+                                      "type": "number",
+                                      "description": "The hour (0-23) at which to rotate."
+                                    },
+                                    "minutes": {
+                                      "type": "number",
+                                      "description": "The minute (0-59) at which to rotate."
+                                    }
+                                  },
+                                  "required": [
+                                    "hours",
+                                    "minutes"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The UTC time of day at which rotation should occur."
+                                }
+                              },
+                              "required": [
+                                "rotationInterval",
+                                "rotationStatus",
+                                "rotateAtUtc"
+                              ],
+                              "additionalProperties": false,
+                              "description": "The credential rotation configuration, if configured."
+                            },
+                            "credentialsHash": {
+                              "type": "string"
+                            },
+                            "project": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "slug": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "id",
+                                "type",
+                                "slug"
+                              ],
+                              "additionalProperties": false,
+                              "nullable": true
+                            },
+                            "app": {
+                              "type": "string",
+                              "enum": [
+                                "gcp"
+                              ]
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "workload-identity-federation"
+                              ]
+                            },
+                            "credentials": {
+                              "type": "object",
+                              "properties": {
+                                "workloadIdentityProvider": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 255,
+                                  "description": "The full resource name of the GCP workload identity pool provider that trusts this organization's Infisical OIDC issuer, e.g. projects/123456789/locations/global/workloadIdentityPools/infisical/providers/infisical."
+                                },
+                                "serviceAccountEmail": {
+                                  "type": "string",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "description": "The GCP service account to impersonate with the federated token. Omit it to use the federated token directly, with GCP roles granted to the connection's principal."
+                                },
+                                "federatedCredential": {
+                                  "type": "object",
+                                  "properties": {
+                                    "issuerUrl": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "subjectIdentifier": {
+                                      "type": "string"
+                                    },
+                                    "audience": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "issuerUrl",
+                                    "subjectIdentifier",
+                                    "audience"
+                                  ],
+                                  "additionalProperties": false,
+                                  "description": "The values to configure on the GCP workload identity pool provider and IAM binding. The issuer is null when SITE_URL is not set."
+                                }
+                              },
+                              "required": [
+                                "workloadIdentityProvider",
+                                "federatedCredential"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "orgId",
+                            "createdAt",
+                            "updatedAt",
+                            "app",
+                            "method",
+                            "credentials"
+                          ],
+                          "additionalProperties": false,
+                          "title": "GCP (Workload Identity Federation)"
                         }
                       ]
                     }
