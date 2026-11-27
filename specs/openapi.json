@@ -34832,6 +34832,13 @@
                         "type": "string"
                       },
                       "nullable": true
+                    },
+                    "mfaAttributeValues": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -35120,6 +35127,17 @@
                     "maxItems": 20,
                     "nullable": true,
                     "description": "Additional AuthnContextClassRef values, besides the built-in two-factor classes, that prove the identity provider completed MFA."
+                  },
+                  "mfaAttributeValues": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    },
+                    "maxItems": 20,
+                    "nullable": true,
+                    "description": "Additional values of the MFA attribute, besides 'mfa' and 'http://schemas.microsoft.com/claims/multipleauthn', that prove the identity provider completed MFA, such as 'swk' for an Okta login whose second factor was a passkey."
                   }
                 },
                 "required": [
@@ -35180,6 +35198,13 @@
                       "nullable": true
                     },
                     "mfaAuthnContexts": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true
+                    },
+                    "mfaAttributeValues": {
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -35468,6 +35493,17 @@
                     "nullable": true,
                     "description": "Additional AuthnContextClassRef values, besides the built-in two-factor classes, that prove the identity provider completed MFA."
                   },
+                  "mfaAttributeValues": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    },
+                    "maxItems": 20,
+                    "nullable": true,
+                    "description": "Additional values of the MFA attribute, besides 'mfa' and 'http://schemas.microsoft.com/claims/multipleauthn', that prove the identity provider completed MFA, such as 'swk' for an Okta login whose second factor was a passkey."
+                  },
                   "organizationId": {
                     "type": "string",
                     "description": "The ID of the organization to update the SAML config for."
@@ -35526,6 +35562,13 @@
                       "nullable": true
                     },
                     "mfaAuthnContexts": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true
+                    },
+                    "mfaAttributeValues": {
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -142574,7 +142617,7 @@
                     },
                     {
                       "type": "string",
-                      "maxLength": 19291
+                      "maxLength": 19310
                     }
                   ]
                 },
@@ -143321,6 +143364,7 @@
                           "create-honey-token",
                           "update-honey-token",
                           "revoke-honey-token",
+                          "delete-honey-token",
                           "trigger-honey-token",
                           "create-project-folder-grant",
                           "delete-project-folder-grant",
@@ -143338,7 +143382,7 @@
                           "update-audit-log-settings"
                         ]
                       },
-                      "maxItems": 748
+                      "maxItems": 749
                     }
                   ]
                 }
@@ -239203,7 +239247,7 @@
                   "keytab": {
                     "type": "string",
                     "minLength": 1,
-                    "contentEncoding": "base64",
+                    "pattern": "^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$",
                     "maxLength": 87384,
                     "description": "The keytab file created with ktpass, base64 encoded. When turning Microsoft Autoenrollment on, send this or reuseKeytab. Send a new one to replace the stored keytab."
                   },
